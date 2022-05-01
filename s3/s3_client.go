@@ -23,6 +23,10 @@ func Init(baseConfig shrd_utils.BaseConfig) (*s3.Client, error) {
 	return s3.NewFromConfig(cfg), err
 }
 
+func PreSignClient(client *s3.Client) *s3.PresignClient {
+	return s3.NewPresignClient(client)
+}
+
 type S3ClientImpl struct {
 	client  S3Client
 	preSign S3PreSign
