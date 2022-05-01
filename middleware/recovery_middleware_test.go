@@ -1,4 +1,4 @@
-package middleware
+package shrd_middleware
 
 import (
 	"net/http"
