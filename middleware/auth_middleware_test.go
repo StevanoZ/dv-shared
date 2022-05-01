@@ -9,7 +9,7 @@ import (
 
 	shrd_helper "github.com/StevanoZ/dv-shared/helper"
 	shrd_token "github.com/StevanoZ/dv-shared/token"
-	mock_token "github.com/StevanoZ/dv-shared/token/mock"
+	shrd_mock_token "github.com/StevanoZ/dv-shared/token/mock"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 
 	"github.com/golang/mock/gomock"
@@ -30,8 +30,8 @@ func testHandler() http.HandlerFunc {
 		w.Write([]byte(SUCCESS))
 	})
 }
-func initAuthMiddleware(ctrl *gomock.Controller) (AuthMiddleware, *mock_token.MockMaker) {
-	token := mock_token.NewMockMaker(ctrl)
+func initAuthMiddleware(ctrl *gomock.Controller) (AuthMiddleware, *shrd_mock_token.MockMaker) {
+	token := shrd_mock_token.NewMockMaker(ctrl)
 	authMiddleware := NewAuthMiddleware(token)
 
 	return authMiddleware, token

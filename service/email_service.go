@@ -32,7 +32,7 @@ type EmailSvcImpl struct {
 func NewEmailSvc(
 	client EmailClient,
 	config shrd_utils.BaseConfig,
-) EmailSvc {
+) *EmailSvcImpl {
 	return &EmailSvcImpl{client: client, config: config}
 }
 

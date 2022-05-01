@@ -17,7 +17,7 @@ type AuthMiddlewareImpl struct {
 	tokenMaker shrd_token.Maker
 }
 
-func NewAuthMiddleware(tokenMaker shrd_token.Maker) AuthMiddleware {
+func NewAuthMiddleware(tokenMaker shrd_token.Maker) *AuthMiddlewareImpl {
 	return &AuthMiddlewareImpl{
 		tokenMaker: tokenMaker,
 	}

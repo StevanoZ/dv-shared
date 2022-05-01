@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mime/multipart"
 
-	shrd_service "github.com/StevanoZ/dv-shared/service"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -34,7 +33,7 @@ func NewS3Client(
 	client S3Client,
 	preSign S3PreSign,
 	config shrd_utils.BaseConfig,
-) shrd_service.FileSvc {
+) *S3ClientImpl {
 	return &S3ClientImpl{
 		client:  client,
 		preSign: preSign,
