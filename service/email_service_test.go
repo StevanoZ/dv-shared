@@ -21,6 +21,10 @@ func initEmailSvc(ctrl *gomock.Controller) (EmailSvc, *mock_svc.MockEmailClient)
 	return NewEmailSvc(emailClient, config), emailClient
 }
 
+func TestNewSgClient(t *testing.T) {
+	config := shrd_utils.LoadBaseConfig("../app", "test")
+	assert.NotNil(t, NewSgClient(config))
+}
 func TestEmailSvc(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

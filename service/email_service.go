@@ -8,6 +8,7 @@ import (
 	shrd_model "github.com/StevanoZ/dv-shared/model"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/sendgrid/rest"
+	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
@@ -27,6 +28,10 @@ type OtpData struct {
 type EmailSvcImpl struct {
 	client EmailClient
 	config *shrd_utils.BaseConfig
+}
+
+func NewSgClient(config *shrd_utils.BaseConfig) *sendgrid.Client {
+	return sendgrid.NewSendClient(config.SGKey)
 }
 
 func NewEmailSvc(
