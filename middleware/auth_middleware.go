@@ -28,7 +28,7 @@ func (m *AuthMiddlewareImpl) CheckIsAuthenticated(handler func(w http.ResponseWr
 		header := r.Header.Get("Authorization")
 
 		if header == "" || !strings.Contains(header, "Bearer ") {
-			shrd_utils.PanicIfError(shrd_utils.CustomError("invalid token", 401))
+			shrd_utils.PanicIfError(shrd_utils.CustomError("unauthorized", 401))
 		}
 		token := strings.Split(header, " ")[1]
 
