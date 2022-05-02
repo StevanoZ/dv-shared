@@ -37,14 +37,6 @@ func ValidateQueryParamInt(r *http.Request, queryName string) int {
 	if queryInt < 0 {
 		PanicIfError(CustomError(fmt.Sprintf("invalid %s query", queryName), 400))
 	}
-	
+
 	return queryInt
-}
-
-func CheckIsAuthorize(r *http.Request, accessId uuid.UUID) {
-	tokenPayload := GetRequestCtx(r, TOKEN_PAYLOAD)
-
-	if tokenPayload.UserId != accessId {
-		PanicIfError(CustomError("not authorize to perform this operation", 403))
-	}
 }

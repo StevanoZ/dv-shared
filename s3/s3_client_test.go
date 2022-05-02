@@ -28,11 +28,11 @@ const (
 	FAILED_DELETE_IMAGE       = "failed when deleting image"
 )
 
-func loadConfig() shrd_utils.BaseConfig {
+func loadConfig() *shrd_utils.BaseConfig {
 	return shrd_utils.LoadBaseConfig("../app", "test")
 }
 
-func initS3Client(ctrl *gomock.Controller, config shrd_utils.BaseConfig) (shrd_service.FileSvc, *mock_s3.MockS3Client, *mock_s3.MockS3PreSign) {
+func initS3Client(ctrl *gomock.Controller, config *shrd_utils.BaseConfig) (shrd_service.FileSvc, *mock_s3.MockS3Client, *mock_s3.MockS3PreSign) {
 	client := mock_s3.NewMockS3Client(ctrl)
 	preSignClient := mock_s3.NewMockS3PreSign(ctrl)
 

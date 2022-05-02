@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime/multipart"
 
+	shrd_service "github.com/StevanoZ/dv-shared/service"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -13,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func Init(baseConfig shrd_utils.BaseConfig) (*s3.Client, error) {
+func Init(baseConfig *shrd_utils.BaseConfig) (*s3.Client, error) {
 	creeds := credentials.NewStaticCredentialsProvider(baseConfig.AWSAccessKey, baseConfig.AWSSecretKey, "")
 	cfg, err := config.LoadDefaultConfig(context.Background(),
 		config.WithCredentialsProvider(creeds),
@@ -30,14 +31,14 @@ func PreSignClient(client *s3.Client) *s3.PresignClient {
 type S3ClientImpl struct {
 	client  S3Client
 	preSign S3PreSign
-	config  shrd_utils.BaseConfig
+	config  *shrd_utils.BaseConfig
 }
 
 func NewS3Client(
 	client S3Client,
 	preSign S3PreSign,
-	config shrd_utils.BaseConfig,
-) *S3ClientImpl {
+	config *shrd_utils.BaseConfig,
+) shrd_service.FileSvc {
 	return &S3ClientImpl{
 		client:  client,
 		preSign: preSign,

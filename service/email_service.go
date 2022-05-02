@@ -26,13 +26,13 @@ type OtpData struct {
 
 type EmailSvcImpl struct {
 	client EmailClient
-	config shrd_utils.BaseConfig
+	config *shrd_utils.BaseConfig
 }
 
 func NewEmailSvc(
 	client EmailClient,
-	config shrd_utils.BaseConfig,
-) *EmailSvcImpl {
+	config *shrd_utils.BaseConfig,
+) EmailSvc {
 	return &EmailSvcImpl{client: client, config: config}
 }
 

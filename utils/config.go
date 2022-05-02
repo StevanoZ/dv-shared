@@ -24,7 +24,7 @@ type BaseConfig struct {
 	PreSignUrlDuration   time.Duration `mapstructure:"PRE_SIGN_URL_DURATION"`
 }
 
-func LoadBaseConfig(path string, configName string) (config BaseConfig) {
+func LoadBaseConfig(path string, configName string) (config *BaseConfig) {
 	viper.AddConfigPath(path)
 	viper.SetConfigName(configName)
 	viper.SetConfigType("env")

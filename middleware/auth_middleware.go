@@ -17,7 +17,7 @@ type AuthMiddlewareImpl struct {
 	tokenMaker shrd_token.Maker
 }
 
-func NewAuthMiddleware(tokenMaker shrd_token.Maker) *AuthMiddlewareImpl {
+func NewAuthMiddleware(tokenMaker shrd_token.Maker) AuthMiddleware {
 	return &AuthMiddlewareImpl{
 		tokenMaker: tokenMaker,
 	}
@@ -42,7 +42,7 @@ func (m *AuthMiddlewareImpl) CheckIsAuthenticated(handler func(w http.ResponseWr
 			shrd_utils.PanicIfError(shrd_utils.CustomError("inactive user can't access this route", 403))
 		}
 
-		ctx := shrd_utils.AppendRequestCtx(r, shrd_utils.TOKEN_PAYLOAD, payload)
+		ctx := shrd_token.AppendRequestCtx(r, shrd_token.TOKEN_PAYLOAD, payload)
 		handler(w, r.WithContext(ctx))
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	shrd_token "github.com/StevanoZ/dv-shared/token"
-	shrd_utils "github.com/StevanoZ/dv-shared/utils"
+
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 )
@@ -24,7 +24,7 @@ func (e tokenPayloadContext) Matches(x interface{}) bool {
 		return false
 	}
 
-	payload := ctx.Value(shrd_utils.TOKEN_PAYLOAD).(*shrd_token.Payload)
+	payload := ctx.Value(shrd_token.TOKEN_PAYLOAD).(*shrd_token.Payload)
 
 	return e.userId == payload.UserId
 }

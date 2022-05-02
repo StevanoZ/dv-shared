@@ -27,7 +27,7 @@ func SetHeaderMultiPartForm(req *http.Request, contentType string) {
 }
 
 func SetAuthorizationHeader(req *http.Request, symmetricKey string, userId uuid.UUID) {
-	tokenMaker, _ := shrd_token.NewPasetoMaker(symmetricKey)
+	tokenMaker, _ := shrd_token.NewPasetoMaker(&shrd_utils.BaseConfig{TokenSymmetricKey: symmetricKey})
 
 	token, _, _ := tokenMaker.CreateToken(shrd_token.PayloadParams{
 		UserId: userId,
