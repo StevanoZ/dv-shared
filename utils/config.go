@@ -22,6 +22,12 @@ type BaseConfig struct {
 	S3PublicBucketName   string        `mapstructure:"S3_PUBLIC_BUCKET_NAME"`
 	S3PrivateBucketName  string        `mapstructure:"S3_PRIVATE_BUCKET_NAME"`
 	PreSignUrlDuration   time.Duration `mapstructure:"PRE_SIGN_URL_DURATION"`
+	Environment          string        `mapstructure:"ENVIRONMENT"`
+	KafkaBroker          string        `mapstructure:"KAFKA_BROKER"`
+	KafkaUsername        string        `mapstructure:"KAFKA_USERNAME"`
+	KafkaPassword        string        `mapstructure:"KAFKA_PASSWORD"`
+	IsRemoteBroker       bool          `mapstructure:"IS_REMOTE_BROKER"`
+	ServiceName          string        `mapstructure:"SERVICE_NAME"`
 }
 
 func LoadBaseConfig(path string, configName string) (config *BaseConfig) {

@@ -1,4 +1,4 @@
-package s3client
+package s3_client
 
 import (
 	"context"

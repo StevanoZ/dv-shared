@@ -6,8 +6,10 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.16.3
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.26.7
+	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/golang/mock v1.6.0
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
 require (

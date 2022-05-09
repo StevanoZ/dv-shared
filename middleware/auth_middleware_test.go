@@ -64,6 +64,7 @@ func TestAuthMiddleware(t *testing.T) {
 			assert.Equal(t, SUCCESS, recorder.Body.String())
 		})
 	})
+
 	t.Run("Do not carry token (status code 401)", func(t *testing.T) {
 		recorder, req := setUpRecorder()
 		shrd_helper.SetHeaderApplicationJson(req)
@@ -72,7 +73,7 @@ func TestAuthMiddleware(t *testing.T) {
 		tokenMaker.EXPECT().VerifyToken(TOKEN).Return(createTokenPayload("active"), nil).Times(0)
 
 		assert.PanicsWithValue(t, shrd_utils.AppError{
-			Message:    "|invalid token",
+			Message:    "|unauthorized",
 			StatusCode: 401,
 		}, func() {
 			handler.ServeHTTP(recorder, req)
