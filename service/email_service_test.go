@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	shrd_model "github.com/StevanoZ/dv-shared/model"
+	"github.com/StevanoZ/dv-shared/message"
 	mock_svc "github.com/StevanoZ/dv-shared/service/mock"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/golang/mock/gomock"
@@ -31,7 +31,7 @@ func TestEmailSvc(t *testing.T) {
 
 	ctx := context.Background()
 	emailSvc, client := initEmailSvc(ctrl)
-	otpData := shrd_model.OtpData{
+	otpData := message.OtpPayload{
 		Email:   "test@test.com",
 		OtpCode: 227799,
 	}

@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	shrd_model "github.com/StevanoZ/dv-shared/model"
+	message "github.com/StevanoZ/dv-shared/message"
 	gomock "github.com/golang/mock/gomock"
 	rest "github.com/sendgrid/rest"
 	mail "github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -91,7 +91,7 @@ func (m *MockEmailSvc) EXPECT() *MockEmailSvcMockRecorder {
 }
 
 // SendVerifyOtp mocks base method.
-func (m *MockEmailSvc) SendVerifyOtp(ctx context.Context, data shrd_model.OtpData) error {
+func (m *MockEmailSvc) SendVerifyOtp(ctx context.Context, data message.OtpPayload) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendVerifyOtp", ctx, data)
 	ret0, _ := ret[0].(error)

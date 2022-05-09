@@ -25,7 +25,7 @@ mockToken:
 	mockgen -package shrd_mock_token -destination token/mock/maker_mock.go -source=token/maker.go
 
 mockSvc:
-	mockgen -package shrd_mock_svc -destination service/mock/message_broker_service_mock.go -source=service/message_broker_service.go
+	mockgen -package shrd_mock_svc -destination service/mock/email_service_mock.go -source=service/email_service.go
 
 test:
 	go test -v -cover ./...

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	shrd_model "github.com/StevanoZ/dv-shared/model"
+	"github.com/StevanoZ/dv-shared/message"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
@@ -17,7 +17,7 @@ type EmailClient interface {
 	SendWithContext(ctx context.Context, email *mail.SGMailV3) (*rest.Response, error)
 }
 type EmailSvc interface {
-	SendVerifyOtp(ctx context.Context, data shrd_model.OtpData) error
+	SendVerifyOtp(ctx context.Context, data message.OtpPayload) error
 }
 
 type OtpData struct {
@@ -41,7 +41,7 @@ func NewEmailSvc(
 	return &EmailSvcImpl{client: client, config: config}
 }
 
-func (s *EmailSvcImpl) SendVerifyOtp(ctx context.Context, data shrd_model.OtpData) error {
+func (s *EmailSvcImpl) SendVerifyOtp(ctx context.Context, data message.OtpPayload) error {
 	otpCodeStr := strconv.Itoa(data.OtpCode)
 	from := mail.NewEmail("", s.config.SenderEmail)
 	subject := "Verify OTP"
