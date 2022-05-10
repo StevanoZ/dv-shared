@@ -121,7 +121,7 @@ func TestConsumerListenEvent(t *testing.T) {
 	t.Run("Success consume message", func(t *testing.T) {
 		consumer.EXPECT().Subscribe(TOPIC, nil).Return(nil).Times(1)
 		consumer.EXPECT().Close().Times(1)
-		consumer.EXPECT().ReadMessage(gomock.Any()).Return(&kafka.Message{Value: []byte(MESSAGE)}, nil).Times(1)
+		consumer.EXPECT().ReadMessage(time.Duration(-1*time.Nanosecond)).Return(&kafka.Message{Value: []byte(MESSAGE)}, nil).Times(1)
 		kafkaClient.ListenEvent(TOPIC, func(payload any, errMsg error, close func()) {
 			close()
 			msg, isKafkaMsg := payload.(*kafka.Message)
@@ -150,7 +150,7 @@ func TestConsumerListenEvent(t *testing.T) {
 	t.Run("Failed consume message (when reading)", func(t *testing.T) {
 		consumer.EXPECT().Subscribe(TOPIC, nil).Times(1)
 		consumer.EXPECT().Close().Times(1)
-		consumer.EXPECT().ReadMessage(gomock.Any()).Return(&kafka.Message{}, error_consumer_message).Times(1)
+		consumer.EXPECT().ReadMessage(time.Duration(-1*time.Nanosecond)).Return(&kafka.Message{}, error_consumer_message).Times(1)
 
 		err := kafkaClient.ListenEvent(TOPIC, func(payload any, errMsg error, close func()) {
 			close()

@@ -23,7 +23,7 @@ func NewKafkaProducer(config *shrd_utils.BaseConfig) (*kafka.Producer, error) {
 	if config.IsRemoteBroker {
 		producer, err = kafka.NewProducer(&kafka.ConfigMap{
 			"bootstrap.servers":  config.KafkaBroker,
-			"security.protocol":  "SASL_PLAINTEXT",
+			"security.protocol":  "SASL_SSL",
 			"sasl.username":      config.KafkaUsername,
 			"sasl.password":      config.KafkaPassword,
 			"sasl.mechanism":     "PLAIN",
@@ -46,7 +46,7 @@ func NewKafkaConsumer(config *shrd_utils.BaseConfig) (*kafka.Consumer, error) {
 	if config.IsRemoteBroker {
 		consumer, err = kafka.NewConsumer(&kafka.ConfigMap{
 			"bootstrap.servers": config.KafkaBroker,
-			"security.protocol": "SASL_PLAINTEXT",
+			"security.protocol": "SASL_SSL",
 			"sasl.username":     config.KafkaUsername,
 			"sasl.password":     config.KafkaPassword,
 			"sasl.mechanism":    "PLAIN",
@@ -116,11 +116,11 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 
 	fmt.Println("started consuming topic: ", topic)
 
-	isListen := true
+	isEndlessly := true
 	close := func() {
-		isListen = false
+		isEndlessly = false
 	}
-	for isListen {
+	for isEndlessly {
 		msg, err := c.consumer.ReadMessage(-1)
 		if err != nil {
 			cb(nil, err, close)
@@ -129,7 +129,6 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 			fmt.Printf("message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 			cb(msg, nil, close)
 		}
-
 	}
 
 	return nil
