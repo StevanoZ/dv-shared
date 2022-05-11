@@ -1,7 +1,6 @@
 package shrd_middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"strings"
@@ -27,14 +26,12 @@ func NewAuthMiddleware(tokenMaker shrd_token.Maker) AuthMiddleware {
 func (m *AuthMiddlewareImpl) CheckIsAuthenticated(handler func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
-		fmt.Println("LEWAT-01")
+
 		if header == "" || !strings.Contains(header, "Bearer ") {
-			fmt.Println("LEWAT-02")
 			shrd_utils.PanicIfError(shrd_utils.CustomError("unauthorized", 401))
 		}
-		fmt.Println("LEWAT-03")
-		token := strings.Split(header, " ")[1]
 
+		token := strings.Split(header, " ")[1]
 		payload, err := m.tokenMaker.VerifyToken(token)
 
 		if err != nil {
