@@ -28,6 +28,10 @@ type BaseConfig struct {
 	KafkaPassword        string        `mapstructure:"KAFKA_PASSWORD"`
 	IsRemoteBroker       bool          `mapstructure:"IS_REMOTE_BROKER"`
 	ServiceName          string        `mapstructure:"SERVICE_NAME"`
+	REDIS_HOST           string        `mapstructure:"REDIS_HOST"`
+	REDIS_USERNAME       string        `mapstructure:"REDIS_USERNAME"`
+	REDIS_PASSWORD       string        `mapstructure:"REDIS_PASSWORD"`
+	CACHE_DURATION       time.Duration `mapstructure:"CACHE_DURATION"`
 }
 
 func LoadBaseConfig(path string, configName string) (config *BaseConfig) {
