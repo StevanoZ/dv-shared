@@ -178,4 +178,9 @@ func TestCacheSvc(t *testing.T) {
 		err = cacheSvc.Del(ctx, SLICE_KEY)
 		assert.Error(t, redis.Nil, err)
 	})
+
+	t.Run("Close client", func(t *testing.T) {
+		err := cacheSvc.CloseClient()
+		assert.NoError(t, err)
+	})
 }

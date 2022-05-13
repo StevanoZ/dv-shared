@@ -16,6 +16,7 @@ type RedisClient interface {
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
 	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
+	Close() error
 }
 
 type CacheSvc interface {
@@ -24,6 +25,7 @@ type CacheSvc interface {
 	Del(ctx context.Context, key string) error
 	DelByPrefix(ctx context.Context, prefixName string)
 	GetOrSet(ctx context.Context, key string, function func() any) (any, error)
+	CloseClient() error
 }
 
 type CacheSvcImpl struct {
@@ -132,4 +134,8 @@ func (s *CacheSvcImpl) Del(ctx context.Context, key string) error {
 	}
 
 	return nil
+}
+
+func (s *CacheSvcImpl) CloseClient() error {
+	return s.cacheDb.Close()
 }

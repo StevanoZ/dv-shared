@@ -36,6 +36,20 @@ func (m *MockRedisClient) EXPECT() *MockRedisClientMockRecorder {
 	return m.recorder
 }
 
+// Close mocks base method.
+func (m *MockRedisClient) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockRedisClientMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRedisClient)(nil).Close))
+}
+
 // Del mocks base method.
 func (m *MockRedisClient) Del(ctx context.Context, keys ...string) *redis.IntCmd {
 	m.ctrl.T.Helper()
@@ -118,6 +132,20 @@ func NewMockCacheSvc(ctrl *gomock.Controller) *MockCacheSvc {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockCacheSvc) EXPECT() *MockCacheSvcMockRecorder {
 	return m.recorder
+}
+
+// CloseClient mocks base method.
+func (m *MockCacheSvc) CloseClient() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloseClient")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CloseClient indicates an expected call of CloseClient.
+func (mr *MockCacheSvcMockRecorder) CloseClient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseClient", reflect.TypeOf((*MockCacheSvc)(nil).CloseClient))
 }
 
 // Del mocks base method.
