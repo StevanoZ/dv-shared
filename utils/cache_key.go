@@ -8,7 +8,7 @@ import (
 func BuildCacheKey(key string, identifier string, funcName string, args ...any) string {
 	cacheKey := fmt.Sprintf("%s-%s-%s", key, identifier, funcName)
 	cacheArgs := ""
-	for index, arg := range args {
+	for _, arg := range args {
 
 		if cacheArgs != "" {
 			cacheArgs += "|"
@@ -16,18 +16,18 @@ func BuildCacheKey(key string, identifier string, funcName string, args ...any) 
 
 		v := reflect.ValueOf(arg)
 		for i := 0; i < v.NumField(); i++ {
-			if cacheArgs == "" {
-				cacheArgs += fmt.Sprintf("%s:%v,", v.Type().Field(i).Name, v.Field(i).Interface())
-			} else if index > 0 {
-				cacheArgs += fmt.Sprintf("%s:%v,", v.Type().Field(i).Name, v.Field(i).Interface())
-			} else {
+			isEmpty := v.Field(i).Interface() == ""
+			if !isEmpty && cacheArgs == "" {
 				cacheArgs += fmt.Sprintf("%s:%v", v.Type().Field(i).Name, v.Field(i).Interface())
+			} else if !isEmpty && string(cacheArgs[len(cacheArgs)-1]) == "|" {
+				cacheArgs += fmt.Sprintf("%s:%v", v.Type().Field(i).Name, v.Field(i).Interface())
+			} else if !isEmpty {
+				cacheArgs += fmt.Sprintf(",%s:%v", v.Type().Field(i).Name, v.Field(i).Interface())
 			}
 		}
 	}
 
-	cacheKeyResult := fmt.Sprintf("%s|%s", cacheKey, cacheArgs)
-	return string(cacheKeyResult[0 : len(cacheKeyResult)-1])
+	return fmt.Sprintf("%s|%s", cacheKey, cacheArgs)
 }
 
 func BuildPrefixKey(keys ...string) string {
