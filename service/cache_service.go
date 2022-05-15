@@ -50,7 +50,13 @@ func NewRedisClient(config *shrd_utils.BaseConfig) *redis.Client {
 	return rdb
 }
 func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
+	dataErr, isError := data.(error)
 
+	if isError {
+		fmt.Println("not save data to cache (data error)")
+		return dataErr
+	}
+	
 	if data != nil {
 		if reflect.TypeOf(data).Kind() == reflect.Slice {
 			if reflect.ValueOf(data).Len() == 0 {
@@ -65,8 +71,13 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
 			return err
 		}
 
+		fmt.Println("set data to cache with key -->", key)
+
 		return s.cacheDb.Set(ctx, key, cacheData, s.config.CACHE_DURATION).Err()
 	}
+
+	fmt.Println("not save data to cache, key -->", key)
+
 	return nil
 }
 
@@ -114,7 +125,6 @@ func (s *CacheSvcImpl) GetOrSet(ctx context.Context, key string, function func()
 	if err != nil && err == redis.Nil {
 		data = function()
 		err := s.Set(ctx, key, data)
-		fmt.Println("set data to cache with key -->", key)
 
 		return data, err
 	}

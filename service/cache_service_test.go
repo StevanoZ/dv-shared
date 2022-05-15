@@ -2,6 +2,7 @@ package shrd_service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -118,7 +119,17 @@ func TestCacheSvc(t *testing.T) {
 	t.Run("Failed set cache when given invalid data type", func(t *testing.T) {
 		err := cacheSvc.Set(ctx, STRUCT_KEY, func() {})
 		assert.Error(t, err)
+	})
 
+	t.Run("Not save key to cache when data is error", func(t *testing.T) {
+		err := cacheSvc.Set(ctx, SLICE_KEY, errors.New("error"))
+		assert.Error(t, err)
+
+		output := []testData{}
+		cacheSvc.Get(ctx, SLICE_KEY, &output)
+
+		assert.Empty(t, output)
+		assert.Equal(t, 0, len(output))
 	})
 
 	t.Run("Set data to cache, when data is not available in cache", func(t *testing.T) {
