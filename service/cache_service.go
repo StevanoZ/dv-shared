@@ -49,6 +49,17 @@ func NewRedisClient(config *shrd_utils.BaseConfig) *redis.Client {
 	})
 	return rdb
 }
+
+func NewRedisClientForTesting(config *shrd_utils.BaseConfig) *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     config.REDIS_HOST,
+		Password: config.REDIS_PASSWORD, // no password set
+		DB:       1,                     // use testing DB
+		Username: config.REDIS_USERNAME,
+	})
+	return rdb
+}
+
 func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
 	dataErr, isError := data.(error)
 
@@ -56,7 +67,7 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
 		fmt.Println("not save data to cache (data error)")
 		return dataErr
 	}
-	
+
 	if data != nil {
 		if reflect.TypeOf(data).Kind() == reflect.Slice {
 			if reflect.ValueOf(data).Len() == 0 {

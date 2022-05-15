@@ -23,13 +23,23 @@ type testData struct {
 	CreatedAt time.Time
 }
 
+func loadBaseConfig() *shrd_utils.BaseConfig {
+	return shrd_utils.LoadBaseConfig("../app", "test")
+}
 func initCacheSvc() (CacheSvc, *redis.Client) {
-	config := shrd_utils.LoadBaseConfig("../app", "test")
-	redisClient := NewRedisClient(config)
+	config := loadBaseConfig()
+	redisClient := NewRedisClientForTesting(config)
 
 	cacheSvc := NewCacheSvc(config, redisClient)
 
 	return cacheSvc, redisClient
+}
+
+func TestNewRedisClient(t *testing.T) {
+	config := loadBaseConfig()
+	redisClient := NewRedisClient(config)
+
+	assert.NotNil(t, redisClient)
 }
 
 func TestCacheSvc(t *testing.T) {
