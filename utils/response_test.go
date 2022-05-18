@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,4 +39,9 @@ func TestGenerateErrorResp(t *testing.T) {
 	assert.Equal(t, 400, resp.StatusCode)
 	assert.Equal(t, 400, recorder.Result().StatusCode)
 	assert.Equal(t, "Test Failed", resp.Data)
+}
+
+func TestEnableCORS(t *testing.T) {
+	r := chi.NewRouter()
+	EnableCORS(r)
 }
