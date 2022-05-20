@@ -89,3 +89,9 @@ func ValidateBodyPayload(body io.ReadCloser, output interface{}) {
 	json.NewDecoder(body).Decode(output)
 	ValidateStruct(output)
 }
+
+func DeferCheck(function func() error) {
+	if err := function(); err != nil {
+		fmt.Println("Defer error:", err)
+	}
+}

@@ -175,7 +175,7 @@ func TestCacheSvc(t *testing.T) {
 
 		output := []testData{}
 
-		err = shrd_utils.ConvertInterface(data, &output)
+		err = shrd_utils.ConvertInterfaceE(data, &output)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(output))
