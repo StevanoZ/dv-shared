@@ -104,3 +104,7 @@ func TestDeferCheck(t *testing.T) {
 		return errors.New("error")
 	})
 }
+
+func TestLogError(t *testing.T) {
+	LogIfError(errors.New("error"))
+}

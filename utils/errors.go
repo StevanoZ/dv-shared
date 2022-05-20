@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"strconv"
 	"strings"
 
@@ -93,5 +94,11 @@ func ValidateBodyPayload(body io.ReadCloser, output interface{}) {
 func DeferCheck(function func() error) {
 	if err := function(); err != nil {
 		fmt.Println("Defer error:", err)
+	}
+}
+
+func LogIfError(err error) {
+	if err != nil {
+		log.Println("error occured: ", err)
 	}
 }
