@@ -13,6 +13,7 @@ import (
 
 	shrd_token "github.com/StevanoZ/dv-shared/token"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
+	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,35 @@ type TestCaseHandler struct {
 	ReqUrl        string
 	BuildStub     func(input interface{}, stubs ...interface{})
 	CheckResponse func(recorder *httptest.ResponseRecorder, expected interface{})
+}
+
+func SetupRequest(t *testing.T, r *chi.Mux, tc TestCaseHandler, stubs ...interface{}) {
+	var req *http.Request
+	var err error
+	recorder := httptest.NewRecorder()
+	input := tc.Payload
+
+	if tc.BuildStub != nil {
+		tc.BuildStub(input, stubs...)
+	}
+
+	formData, isFormData := input.(*bytes.Buffer)
+	if isFormData {
+		req, err = http.NewRequest(tc.Method, tc.ReqUrl, formData)
+		assert.NoError(t, err)
+	} else {
+		body, err := json.Marshal(input)
+		assert.NoError(t, err)
+		req, err = http.NewRequest(tc.Method, tc.ReqUrl, bytes.NewReader(body))
+		assert.NoError(t, err)
+	}
+
+	if tc.SetHeaders != nil {
+		tc.SetHeaders(req)
+	}
+
+	r.ServeHTTP(recorder, req)
+	tc.CheckResponse(recorder, input)
 }
 
 func SetHeaderApplicationJson(req *http.Request) {
