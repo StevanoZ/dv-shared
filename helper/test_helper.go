@@ -18,6 +18,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type TestCaseHandler struct {
+	Name          string
+	SetHeaders    func(req *http.Request)
+	Payload       interface{}
+	Method        string
+	ReqUrl        string
+	BuildStub     func(input interface{}, stubs ...interface{})
+	CheckResponse func(recorder *httptest.ResponseRecorder, expected interface{})
+}
+
 func SetHeaderApplicationJson(req *http.Request) {
 	req.Header.Add("Content-Type", "application/json")
 }
