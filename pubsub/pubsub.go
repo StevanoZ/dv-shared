@@ -25,7 +25,7 @@ type PubSubClient interface {
 	CreateTopicIfNotExists(ctx context.Context, topicName string) (*pubsub.Topic, error)
 	CreateSubscriptionIfNotExists(ctx context.Context, id string, topic *pubsub.Topic) (*pubsub.Subscription, error)
 	PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error
-	PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message))
+	PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) error
 }
 
 type PubSubClientImpl struct {
@@ -109,12 +109,16 @@ func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.T
 	return nil
 }
 
-func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) {
+func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) error {
 	defer p.pubSub.Close()
-	sub, _ := p.CreateSubscriptionIfNotExists(ctx, id, topic)
-	sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
+	sub, err := p.CreateSubscriptionIfNotExists(ctx, id, topic)
+	if err != nil {
+		return err
+	}
+
+	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		log.Println("received message with ID: ", msg.ID)
-		
+
 		callback(ctx, msg)
 		msg.Ack()
 	})
