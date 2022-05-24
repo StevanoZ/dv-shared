@@ -66,3 +66,4 @@ func TestNewPubSubClient(t *testing.T) {
 // 	_, err := client.CreateTopicIfNotExists(ctx, topic)
 // 	assert.NoError(t, err)
 // }
+
