@@ -82,7 +82,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 }
 
 func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error {
-	p.pubSub.Close()
+	defer p.pubSub.Close()
 	var results []*pubsub.PublishResult
 	message, err := json.Marshal(data)
 	if err != nil {
