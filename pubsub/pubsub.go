@@ -38,8 +38,8 @@ func NewGooglePubSub(config *shrd_utils.BaseConfig) (c *pubsub.Client, err error
 	return pubsub.NewClient(ctx, projectId)
 }
 
-func NewPubSubClient(pubSub GooglePubSub) PubSubClient {
-	return &PubSubClientImpl{pubSub: pubSub}
+func NewPubSubClient(config *shrd_utils.BaseConfig, pubSub GooglePubSub) PubSubClient {
+	return &PubSubClientImpl{config: config, pubSub: pubSub}
 }
 
 func (p *PubSubClientImpl) CreateTopicIfNotExists(ctx context.Context, topicName string) (*pubsub.Topic, error) {
@@ -59,6 +59,7 @@ func (p *PubSubClientImpl) CreateTopicIfNotExists(ctx context.Context, topicName
 
 func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id string, topic *pubsub.Topic) (*pubsub.Subscription, error) {
 	sub := p.pubSub.Subscription(id)
+
 	ok, err := sub.Exists(ctx)
 
 	if err != nil {
@@ -83,7 +84,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error {
 	defer p.pubSub.Close()
 	var results []*pubsub.PublishResult
-	
+
 	message, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -111,11 +112,12 @@ func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.T
 
 func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) error {
 	defer p.pubSub.Close()
+
 	sub, err := p.CreateSubscriptionIfNotExists(ctx, id, topic)
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("LEWAT")
 	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		log.Println("received message with ID: ", msg.ID)
 
