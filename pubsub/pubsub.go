@@ -11,8 +11,6 @@ import (
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 )
 
-const DLQ_TOPIC = "DLQ-Topic"
-
 type GooglePubSub interface {
 	CreateTopic(ctx context.Context, topicID string) (*pubsub.Topic, error)
 	CreateSubscription(ctx context.Context, id string, cfg pubsub.SubscriptionConfig) (*pubsub.Subscription, error)
@@ -29,6 +27,7 @@ type PubSubClient interface {
 }
 
 type PubSubClientImpl struct {
+	config *shrd_utils.BaseConfig
 	pubSub GooglePubSub
 }
 
@@ -75,7 +74,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 		EnableMessageOrdering: true,
 		AckDeadline:           20 * time.Second,
 		DeadLetterPolicy: &pubsub.DeadLetterPolicy{
-			DeadLetterTopic:     DLQ_TOPIC,
+			DeadLetterTopic:     p.config.DLQ_TOPIC,
 			MaxDeliveryAttempts: 5,
 		},
 	})
@@ -84,6 +83,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error {
 	defer p.pubSub.Close()
 	var results []*pubsub.PublishResult
+	
 	message, err := json.Marshal(data)
 	if err != nil {
 		return err
