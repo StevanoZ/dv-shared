@@ -25,10 +25,10 @@ mockToken:
 	mockgen -package shrd_mock_token -destination token/mock/maker_mock.go -source=token/maker.go
 
 mockSvc:
-	mockgen -package shrd_mock_svc -destination service/mock/cache_service_mock.go -source=service/cache_service.go
+	mockgen -package shrd_mock_svc -destination service/mock/pubsub_service_mock.go -source=service/pubsub_service.go
 
 mockPubSub:
-	mockgen -package pubsub_client -destination pubsub/pubsub_mock.go -source=pubsub/pubsub.go
+	mockgen -package mock_pubsub -destination pubsub/mock/pubsub_mock.go -source=pubsub/pubsub.go
 
 test:
 	go test -v -cover ./...
@@ -36,5 +36,5 @@ test:
 q2c:
 	sqlc generate
 
-.PHONY: migrateInit createDb migrateUp migrateUp1 migrateDown migrateDown1 q2c mockSvc mockToken test
+.PHONY: migrateInit createDb migrateUp migrateUp1 migrateDown migrateDown1 q2c mockSvc mockToken mockPubSub test
 

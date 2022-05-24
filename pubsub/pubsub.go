@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+	shrd_service "github.com/StevanoZ/dv-shared/service"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 )
 
@@ -17,13 +18,6 @@ type GooglePubSub interface {
 	Topic(id string) *pubsub.Topic
 	Subscription(id string) *pubsub.Subscription
 	Close() error
-}
-
-type PubSubClient interface {
-	CreateTopicIfNotExists(ctx context.Context, topicName string) (*pubsub.Topic, error)
-	CreateSubscriptionIfNotExists(ctx context.Context, id string, topic *pubsub.Topic) (*pubsub.Subscription, error)
-	PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error
-	PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) error
 }
 
 type PubSubClientImpl struct {
@@ -38,7 +32,7 @@ func NewGooglePubSub(config *shrd_utils.BaseConfig) (c *pubsub.Client, err error
 	return pubsub.NewClient(ctx, projectId)
 }
 
-func NewPubSubClient(config *shrd_utils.BaseConfig, pubSub GooglePubSub) PubSubClient {
+func NewPubSubClient(config *shrd_utils.BaseConfig, pubSub GooglePubSub) shrd_service.PubSubClient {
 	return &PubSubClientImpl{config: config, pubSub: pubSub}
 }
 
@@ -54,7 +48,10 @@ func (p *PubSubClientImpl) CreateTopicIfNotExists(ctx context.Context, topicName
 		return tpc, nil
 	}
 
-	return p.pubSub.CreateTopic(ctx, topicName)
+	tpc, err = p.pubSub.CreateTopic(ctx, topicName)
+	tpc.EnableMessageOrdering = true
+
+	return tpc, err
 }
 
 func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id string, topic *pubsub.Topic) (*pubsub.Subscription, error) {

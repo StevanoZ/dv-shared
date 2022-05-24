@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"cloud.google.com/go/pubsub"
+	mock_pubsub "github.com/StevanoZ/dv-shared/pubsub/mock"
+	shrd_service "github.com/StevanoZ/dv-shared/service"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -25,9 +27,10 @@ func loadBaseConfig() *shrd_utils.BaseConfig {
 	return shrd_utils.LoadBaseConfig("../app", "test")
 }
 
-func initPubSubClient(t *testing.T, ctrl *gomock.Controller) (PubSubClient, *MockGooglePubSub) {
-	gPubSub := NewMockGooglePubSub(ctrl)
-	pubSubClient := NewPubSubClient(gPubSub)
+func initPubSubClient(t *testing.T, ctrl *gomock.Controller) (shrd_service.PubSubClient, *mock_pubsub.MockGooglePubSub) {
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "service-account.json")
+	gPubSub := mock_pubsub.NewMockGooglePubSub(ctrl)
+	pubSubClient := NewPubSubClient(loadBaseConfig(), gPubSub)
 	assert.NotNil(t, pubSubClient)
 	return pubSubClient, gPubSub
 }
@@ -48,22 +51,21 @@ func TestNewPubSubClient(t *testing.T) {
 	initPubSubClient(t, ctrl)
 }
 
-// func TestCreateTopicIfNotExists(t *testing.T) {
-// 	ctx := context.Background()
-// 	topic := "TEST-TOPIC"
-// 	ctrl := gomock.NewController(t)
-// 	defer ctrl.Finish()
+func TestCreateTopicIfNotExists(t *testing.T) {
+	ctx := context.Background()
+	topic := "TEST-TOPIC"
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-// 	client, gPubSub := initPubSubClient(t, ctrl)
+	client, gPubSub := initPubSubClient(t, ctrl)
 
-// 	// pubSubTopic := PubSubTopic{
-// 	// 	exist: true,
-// 	// 	err:   nil,
-// 	// }
+	// pubSubTopic := PubSubTopic{
+	// 	exist: true,
+	// 	err:   nil,
+	// }
 
-// 	gPubSub.EXPECT().Topic(topic).Return(&pubsub.Topic{}).Times(1)
+	gPubSub.EXPECT().Topic(topic).Return(&pubsub.Topic{}).Times(1)
 
-// 	_, err := client.CreateTopicIfNotExists(ctx, topic)
-// 	assert.NoError(t, err)
-// }
-
+	_, err := client.CreateTopicIfNotExists(ctx, topic)
+	assert.NoError(t, err)
+}
