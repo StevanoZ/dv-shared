@@ -82,7 +82,6 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 }
 
 func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error {
-	defer p.pubSub.Close()
 	var results []*pubsub.PublishResult
 
 	message, err := json.Marshal(data)
@@ -117,7 +116,7 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 	if err != nil {
 		return err
 	}
-	fmt.Println("LEWAT")
+
 	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		log.Println("received message with ID: ", msg.ID)
 
