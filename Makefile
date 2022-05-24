@@ -27,6 +27,9 @@ mockToken:
 mockSvc:
 	mockgen -package shrd_mock_svc -destination service/mock/cache_service_mock.go -source=service/cache_service.go
 
+mockPubSub:
+	mockgen -package pubsub_client -destination pubsub/pubsub_mock.go -source=pubsub/pubsub.go
+
 test:
 	go test -v -cover ./...
 	

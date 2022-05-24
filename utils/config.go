@@ -8,6 +8,7 @@ import (
 )
 
 type BaseConfig struct {
+	GCP_PROJECT_ID       string        `mapstructure:"GCP_PROJECT_ID"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	ServerPort           string        `mapstructure:"SERVER_PORT"`
