@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -22,7 +23,7 @@ type GooglePubSub interface {
 
 type PubSubClient interface {
 	CreateTopicIfNotExists(ctx context.Context, topicName string) (*pubsub.Topic, error)
-	CreateSubscriptionIfNotExists(ctx context.Context, client GooglePubSub, id string, topic *pubsub.Topic) (*pubsub.Subscription, error)
+	CreateSubscriptionIfNotExists(ctx context.Context, id string, topic *pubsub.Topic) (*pubsub.Subscription, error)
 	PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error
 	PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message))
 }
@@ -57,8 +58,8 @@ func (p *PubSubClientImpl) CreateTopicIfNotExists(ctx context.Context, topicName
 	return p.pubSub.CreateTopic(ctx, topicName)
 }
 
-func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, client GooglePubSub, id string, topic *pubsub.Topic) (*pubsub.Subscription, error) {
-	sub := client.Subscription(id)
+func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id string, topic *pubsub.Topic) (*pubsub.Subscription, error) {
+	sub := p.pubSub.Subscription(id)
 	ok, err := sub.Exists(ctx)
 
 	if err != nil {
@@ -69,7 +70,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, cl
 		return sub, nil
 	}
 
-	return client.CreateSubscription(ctx, id, pubsub.SubscriptionConfig{
+	return p.pubSub.CreateSubscription(ctx, id, pubsub.SubscriptionConfig{
 		Topic:                 topic,
 		EnableMessageOrdering: true,
 		AckDeadline:           20 * time.Second,
@@ -81,6 +82,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, cl
 }
 
 func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error {
+	p.pubSub.Close()
 	var results []*pubsub.PublishResult
 	message, err := json.Marshal(data)
 	if err != nil {
@@ -109,10 +111,11 @@ func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.T
 
 func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) {
 	defer p.pubSub.Close()
-	sub, _ := p.CreateSubscriptionIfNotExists(ctx, p.pubSub, id, topic)
+	sub, _ := p.CreateSubscriptionIfNotExists(ctx, id, topic)
 	sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
+		log.Println("received message with ID: ", msg.ID)
+		
 		callback(ctx, msg)
 		msg.Ack()
 	})
 }
-
