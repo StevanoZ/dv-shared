@@ -87,6 +87,7 @@ func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.T
 	}
 
 	for _, topic := range topics {
+		topic.EnableMessageOrdering = true
 		res := topic.Publish(ctx, &pubsub.Message{
 			Data:        message,
 			OrderingKey: orderingKey,
