@@ -31,7 +31,9 @@ mockPubSub:
 	mockgen -package mock_pubsub -destination pubsub/mock/pubsub_mock.go -source=pubsub/pubsub.go
 
 test:
-	go test -v -cover ./...
+	go test -v -covermode=atomic -race -coverpkg=./... ./... \
+	-coverprofile coverage.out.tmp && cat coverage.out.tmp | grep -v "_mock.go" | grep -v "main.go" | grep -v "helper/" | grep -v "_gen.go" > coverage.out && rm coverage.out.tmp && \
+	go tool cover -func coverage.out
 	
 q2c:
 	sqlc generate

@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Inside "helper" folder: JUST FOR TESTING PURPOSE
 type tokenPayloadContext struct {
 	userId uuid.UUID
 }

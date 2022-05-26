@@ -2,37 +2,56 @@ package pubsub_client
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"testing"
+	"time"
 
 	"cloud.google.com/go/pubsub"
-	mock_pubsub "github.com/StevanoZ/dv-shared/pubsub/mock"
+	shrd_helper "github.com/StevanoZ/dv-shared/helper"
 	shrd_service "github.com/StevanoZ/dv-shared/service"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-type PubSubTopic struct {
-	*pubsub.Topic
-	exist bool
-	err   error
-}
+const PROJECT = "TEST-PROJECT"
+const TOPIC = "TOPIC"
+const SUBSCRIPTION = "TESTING"
+const DLQ = "DLQ"
+const MESSAGE = "TEST MESSAGE"
+const ORDER_KEY = "order-key"
 
-func (p *PubSubTopic) Exists(ctx context.Context) (bool, error) {
-	return p.exist, p.err
-}
+var CONTEXT = context.Background()
 
 func loadBaseConfig() *shrd_utils.BaseConfig {
 	return shrd_utils.LoadBaseConfig("../app", "test")
 }
 
-func initPubSubClient(t *testing.T, ctrl *gomock.Controller) (shrd_service.PubSubClient, *mock_pubsub.MockGooglePubSub) {
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "service-account.json")
-	gPubSub := mock_pubsub.NewMockGooglePubSub(ctrl)
+func initPubSubClient(t *testing.T, gPubSub *pubsub.Client) shrd_service.PubSubClient {
 	pubSubClient := NewPubSubClient(loadBaseConfig(), gPubSub)
 	assert.NotNil(t, pubSubClient)
-	return pubSubClient, gPubSub
+	return pubSubClient
+}
+
+func createTopicAndDLQ(t *testing.T, client shrd_service.PubSubClient) (topic *pubsub.Topic, dlqTopic *pubsub.Topic) {
+	topic, err := client.CreateTopicIfNotExists(CONTEXT, TOPIC)
+	assert.NoError(t, err)
+	assert.Equal(t, topic.ID(), TOPIC)
+	assert.Equal(t, true, topic.EnableMessageOrdering)
+
+	dlqTopic, err = client.CreateTopicIfNotExists(CONTEXT, DLQ)
+	assert.NoError(t, err)
+	assert.Equal(t, dlqTopic.ID(), DLQ)
+
+	return topic, dlqTopic
+}
+
+func publishTopic(t *testing.T, client shrd_service.PubSubClient) *pubsub.Topic {
+	topic, _ := createTopicAndDLQ(t, client)
+	err := client.PublishTopics(CONTEXT, []*pubsub.Topic{topic, topic}, MESSAGE, ORDER_KEY)
+	assert.NoError(t, err)
+
+	return topic
 }
 
 func TestNewGooglePubSub(t *testing.T) {
@@ -45,27 +64,183 @@ func TestNewGooglePubSub(t *testing.T) {
 }
 
 func TestNewPubSubClient(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+	defer close()
 
-	initPubSubClient(t, ctrl)
+	client := initPubSubClient(t, gPubSub)
+	assert.NotNil(t, client)
 }
 
 func TestCreateTopicIfNotExists(t *testing.T) {
-	ctx := context.Background()
-	topic := "TEST-TOPIC"
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	t.Run("Create topic if not exist", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
 
-	client, gPubSub := initPubSubClient(t, ctrl)
+		client := initPubSubClient(t, gPubSub)
 
-	// pubSubTopic := PubSubTopic{
-	// 	exist: true,
-	// 	err:   nil,
-	// }
+		topic, err := client.CreateTopicIfNotExists(CONTEXT, TOPIC)
+		assert.Equal(t, topic.ID(), TOPIC)
+		assert.Equal(t, true, topic.EnableMessageOrdering)
+		assert.NoError(t, err)
+	})
 
-	gPubSub.EXPECT().Topic(topic).Return(&pubsub.Topic{}).Times(1)
+	t.Run("Not create topic if already exists", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
 
-	_, err := client.CreateTopicIfNotExists(ctx, topic)
+		client := initPubSubClient(t, gPubSub)
+		topic, err := gPubSub.CreateTopic(CONTEXT, TOPIC)
+		assert.NoError(t, err)
+		assert.NotNil(t, topic)
+
+		topic, err = client.CreateTopicIfNotExists(CONTEXT, TOPIC)
+		assert.NoError(t, err)
+		assert.Equal(t, false, topic.EnableMessageOrdering)
+	})
+
+	t.Run("Failed when creating topic", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		close()
+
+		client := initPubSubClient(t, gPubSub)
+
+		topic, err := client.CreateTopicIfNotExists(CONTEXT, TOPIC)
+		assert.Error(t, err)
+		assert.Nil(t, topic)
+	})
+}
+
+func TestCreateSubscriptionIfNotExists(t *testing.T) {
+	t.Run("Create subscription if not exist", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
+
+		client := initPubSubClient(t, gPubSub)
+		topic, _ := createTopicAndDLQ(t, client)
+
+		sub, err := client.CreateSubscriptionIfNotExists(CONTEXT, SUBSCRIPTION, topic)
+		assert.NoError(t, err)
+		assert.Equal(t, sub.ID(), SUBSCRIPTION)
+	})
+
+	t.Run("Not create subscription if already exist", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
+
+		client := initPubSubClient(t, gPubSub)
+
+		topic, _ := createTopicAndDLQ(t, client)
+
+		sub, err := client.CreateSubscriptionIfNotExists(CONTEXT, SUBSCRIPTION, topic)
+		assert.NoError(t, err)
+		assert.Equal(t, sub.ID(), SUBSCRIPTION)
+
+		sub, err = client.CreateSubscriptionIfNotExists(CONTEXT, SUBSCRIPTION, topic)
+		assert.NoError(t, err)
+		assert.Equal(t, sub.ID(), SUBSCRIPTION)
+	})
+
+	t.Run("Failed when subscribe topic", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		close()
+
+		client := initPubSubClient(t, gPubSub)
+
+		sub, err := client.CreateSubscriptionIfNotExists(CONTEXT, SUBSCRIPTION, &pubsub.Topic{})
+		assert.Error(t, err)
+		assert.Nil(t, sub)
+	})
+}
+
+func TestPublishTopics(t *testing.T) {
+	t.Run("Success publish topic", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
+
+		client := initPubSubClient(t, gPubSub)
+		topic, _ := createTopicAndDLQ(t, client)
+
+		err := client.PublishTopics(CONTEXT, []*pubsub.Topic{topic, topic}, MESSAGE, ORDER_KEY)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Failed when publish topic", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
+
+		client := initPubSubClient(t, gPubSub)
+		topic, _ := createTopicAndDLQ(t, client)
+
+		err := client.PublishTopics(CONTEXT, []*pubsub.Topic{topic}, func() {}, ORDER_KEY)
+		assert.Error(t, err)
+	})
+
+	t.Run("Failed when publish topic", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
+
+		client := initPubSubClient(t, gPubSub)
+		topic, _ := createTopicAndDLQ(t, client)
+		topic.PublishSettings.Timeout = 1 * time.Microsecond
+
+		err := client.PublishTopics(CONTEXT, []*pubsub.Topic{topic}, MESSAGE, ORDER_KEY)
+		assert.Error(t, err)
+	})
+}
+
+func TestPullMessages(t *testing.T) {
+	t.Run("Success pull message", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+		defer close()
+
+		client := initPubSubClient(t, gPubSub)
+
+		topic, _ := createTopicAndDLQ(t, client)
+
+		go func() {
+			msgData, err := json.Marshal(MESSAGE)
+			assert.NoError(t, err)
+
+			topic.Publish(CONTEXT, &pubsub.Message{
+				Data: msgData,
+			})
+		}()
+
+		go func() {
+			err := client.PullMessages(CONTEXT, SUBSCRIPTION, topic, func(ctx context.Context, msg *pubsub.Message) {
+				var data string
+
+				err := json.Unmarshal(msg.Data, &data)
+				assert.NoError(t, err)
+				assert.Equal(t, MESSAGE, data)
+			})
+			assert.NoError(t, err)
+		}()
+
+		time.Sleep(300 * time.Millisecond)
+	})
+
+	t.Run("Failed when pull message", func(t *testing.T) {
+		gPubSub, close := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+
+		client := initPubSubClient(t, gPubSub)
+		topic := publishTopic(t, client)
+
+		go func() {
+			close()
+			err := client.PullMessages(CONTEXT, SUBSCRIPTION, topic, func(ctx context.Context, msg *pubsub.Message) {
+				assert.Equal(t, nil, msg)
+			})
+			assert.Error(t, err)
+		}()
+
+		time.Sleep(300 * time.Millisecond)
+	})
+}
+
+func TestClose(t *testing.T) {
+	gPubSub, _ := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+	client := initPubSubClient(t, gPubSub)
+	err := client.Close()
 	assert.NoError(t, err)
 }

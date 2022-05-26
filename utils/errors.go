@@ -93,7 +93,7 @@ func ValidateBodyPayload(body io.ReadCloser, output interface{}) {
 
 func DeferCheck(function func() error) {
 	if err := function(); err != nil {
-		fmt.Println("Defer error:", err)
+		log.Println("defer error:", err)
 	}
 }
 

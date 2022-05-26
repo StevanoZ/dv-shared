@@ -11,14 +11,20 @@ import (
 	"testing"
 	"time"
 
+	"cloud.google.com/go/pubsub"
+	"cloud.google.com/go/pubsub/pstest"
 	shrd_token "github.com/StevanoZ/dv-shared/token"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/api/option"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
+// Inside "helper" folder: JUST FOR TESTING PURPOSE
 type TestCaseHandler struct {
 	Name          string
 	SetHeaders    func(req *http.Request)
@@ -135,6 +141,27 @@ func CreateFilesHeader(n int, filename string) []*multipart.FileHeader {
 	filesHeader := req.MultipartForm.File["files"]
 
 	return filesHeader
+}
+
+func CreateFakeGooglePubSub(t *testing.T, project string) (gPubSub *pubsub.Client, close func()) {
+	ctx := context.Background()
+	// Start a fake server running locally.
+	srv := pstest.NewServer()
+
+	// Connect to the server without using TLS.
+	conn, err := grpc.Dial(srv.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	assert.NoError(t, err)
+
+	// Use the connection when creating a pubsub client.
+	client, err := pubsub.NewClient(ctx, project, option.WithGRPCConn(conn))
+	assert.NoError(t, err)
+
+	_ = client
+	return client, func() {
+		srv.Close()
+		conn.Close()
+		client.Close()
+	}
 }
 
 func CheckTokenPayloadCtx(ctx context.Context) gomock.Matcher {

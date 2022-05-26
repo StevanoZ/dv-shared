@@ -122,3 +122,7 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 		msg.Ack()
 	})
 }
+
+func (p *PubSubClientImpl) Close() error {
+	return p.pubSub.Close()
+}
