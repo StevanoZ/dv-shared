@@ -105,6 +105,45 @@ func TestDeferCheck(t *testing.T) {
 	})
 }
 
-func TestLogError(t *testing.T) {
+func TestLogIfError(t *testing.T) {
 	LogIfError(errors.New("error"))
+}
+
+func TestPrintError(t *testing.T) {
+	t.Run("App error", func(t *testing.T) {
+		err := AppError{
+			Message:    "from app error",
+			StatusCode: 422,
+		}
+
+		assert.Equal(t, "app error: status code 422, message from app error", err.Error())
+	})
+
+	t.Run("Validation error", func(t *testing.T) {
+		err := ValidationError{
+			Message: "from validation error",
+		}
+
+		assert.Equal(t, "validation error: message from validation error", err.Error())
+	})
+
+	t.Run("Validations error", func(t *testing.T) {
+		err := ValidationErrors{
+			Errors: []ValidationError{
+				{
+					Message: "from validation error",
+				},
+			},
+			StatusCode: 400,
+		}
+
+		assert.Equal(t, "validation errors: status code 400, message from validation error", err.Error())
+	})
+}
+
+func TestLogAndPanicIfError(t *testing.T) {
+	err := errors.New("error")
+	assert.PanicsWithValue(t, err, func() {
+		LogAndPanicIfError(err, "error occured")
+	})
 }

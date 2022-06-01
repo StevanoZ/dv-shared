@@ -16,13 +16,25 @@ type AppError struct {
 	StatusCode int
 }
 
+func (ae *AppError) Error() string {
+	return fmt.Sprintf("app error: status code %d, message %s", ae.StatusCode, ae.Message)
+}
+
 type ValidationError struct {
 	Message string
+}
+
+func (ve *ValidationError) Error() string {
+	return fmt.Sprintf("validation error: message %s", ve.Message)
 }
 
 type ValidationErrors struct {
 	Errors     []ValidationError
 	StatusCode int
+}
+
+func (ve *ValidationErrors) Error() string {
+	return fmt.Sprintf("validation errors: status code %d, message %s", ve.StatusCode, ve.Errors[0].Message)
 }
 
 func CustomError(message string, statusCode int) error {
@@ -100,5 +112,13 @@ func DeferCheck(function func() error) {
 func LogIfError(err error) {
 	if err != nil {
 		log.Println("error occured: ", err)
+	}
+}
+
+func LogAndPanicIfError(err error, message string) {
+	if err != nil {
+		errMsg := fmt.Sprintf("%s :%v", message, err)
+		log.Println(errMsg)
+		panic(err)
 	}
 }

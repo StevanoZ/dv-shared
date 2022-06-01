@@ -3,7 +3,6 @@ package pubsub_client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -101,7 +100,7 @@ func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.T
 			return err
 		}
 
-		fmt.Println("publish message with ID: ", id)
+		log.Println("publish message with ID: ", id)
 	}
 
 	return nil

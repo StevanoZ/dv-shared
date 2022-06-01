@@ -1,13 +1,13 @@
-export POSTGRESQL_URL='postgresql://postgres:postgres_password@localhost:5454/dwiz_vent?sslmode=disable'
+export POSTGRESQL_URL='postgresql://postgres:postgres_password@localhost:5454/dv_test_db?sslmode=disable'
 
 migrateInit:
-	migrate create -ext sql -dir db/migration -seq alter_user
+	migrate create -ext sql -dir db/migration -seq init_test_db
 
 createDb:
 	docker exec -it postgres_1 createdb -U postgres dv_test_db
 
 dropDb:
-	docker exec -it postgres_1 dropdb -U postgres dwiz_vent --force
+	docker exec -it postgres_1 dropdb -U postgres dv_test_db --force
 
 migrateUp:
 	migrate -path db/migration -database ${POSTGRESQL_URL} -verbose up

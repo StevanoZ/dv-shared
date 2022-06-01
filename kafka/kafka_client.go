@@ -2,7 +2,7 @@ package kafka_client
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"time"
 
 	shrd_service "github.com/StevanoZ/dv-shared/service"
@@ -93,7 +93,7 @@ func (c *KafkaClientImpl) SendEvents(topics []string, key string, message interf
 				return err
 			}
 
-			fmt.Println("send message to topic: ", topic)
+			log.Println("send message to topic: ", topic)
 			c.producer.Flush(15000)
 			return nil
 		})
@@ -110,11 +110,11 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 	defer c.consumer.Close()
 
 	if err != nil {
-		fmt.Println("error when subscribe topic", err)
+		log.Println("error when subscribe topic", err)
 		return err
 	}
 
-	fmt.Println("started consuming topic: ", topic)
+	log.Println("started consuming topic: ", topic)
 
 	isEndlessly := true
 	close := func() {
@@ -126,7 +126,7 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 			cb(nil, err, close)
 
 		} else {
-			fmt.Printf("message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			log.Printf("message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 			cb(msg, nil, close)
 		}
 	}

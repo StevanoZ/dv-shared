@@ -131,8 +131,40 @@ func TestCacheSvc(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Not save key to cache when data is error", func(t *testing.T) {
+	t.Run("Not save key to cache when data is Error", func(t *testing.T) {
 		err := cacheSvc.Set(ctx, SLICE_KEY, errors.New("error"))
+		assert.Error(t, err)
+
+		output := []testData{}
+		cacheSvc.Get(ctx, SLICE_KEY, &output)
+
+		assert.Empty(t, output)
+		assert.Equal(t, 0, len(output))
+	})
+
+	t.Run("Not save key to cache when data is App Error", func(t *testing.T) {
+		appError := shrd_utils.AppError{
+			Message:    "app error",
+			StatusCode: 422,
+		}
+		err := cacheSvc.Set(ctx, SLICE_KEY, appError)
+		assert.Error(t, err)
+
+		output := []testData{}
+		cacheSvc.Get(ctx, SLICE_KEY, &output)
+
+		assert.Empty(t, output)
+		assert.Equal(t, 0, len(output))
+	})
+
+	t.Run("Not save key to cache when data is Validation Error", func(t *testing.T) {
+		validationErrs := shrd_utils.ValidationErrors{
+			Errors: []shrd_utils.ValidationError{
+				{Message: "validaton error"},
+			},
+			StatusCode: 400,
+		}
+		err := cacheSvc.Set(ctx, SLICE_KEY, validationErrs)
 		assert.Error(t, err)
 
 		output := []testData{}

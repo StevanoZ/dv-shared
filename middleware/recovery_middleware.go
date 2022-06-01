@@ -1,7 +1,7 @@
 package shrd_middleware
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -21,13 +21,13 @@ func Recovery(next http.Handler) http.Handler {
 
 				if isAppErr {
 					messages := strings.Split(appErr.Message, "|")
-					fmt.Println("APP ERROR (PANIC)", messages[0])
+					log.Println("APP ERROR (PANIC)", messages[0])
 					errorMsgs = []map[string]interface{}{
 						{"message": messages[1]},
 					}
 					statusCode = appErr.StatusCode
 				} else if isValidationErr {
-					fmt.Println("VALIDATION ERROR (PANIC)", validationErr)
+					log.Println("VALIDATION ERROR (PANIC)", validationErr)
 					for _, err := range validationErr.Errors {
 						errorMsg := map[string]interface{}{
 							"message": err.Message,
@@ -36,7 +36,7 @@ func Recovery(next http.Handler) http.Handler {
 					}
 					statusCode = validationErr.StatusCode
 				} else {
-					fmt.Println("UNKNOWN ERROR (PANIC)", err)
+					log.Println("UNKNOWN ERROR (PANIC)", err)
 					errorMsgs = []map[string]interface{}{
 						{"message": "internal server error"},
 					}
