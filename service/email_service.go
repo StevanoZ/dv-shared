@@ -2,7 +2,7 @@ package shrd_service
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/StevanoZ/dv-shared/message"
@@ -51,11 +51,11 @@ func (s *EmailSvcImpl) SendVerifyOtp(ctx context.Context, data message.OtpPayloa
 
 	response, err := s.client.SendWithContext(ctx, message)
 	if err != nil {
-		fmt.Println("Error Send Email", err)
+		log.Println("Error Send Email", err)
 		return err
 	} else {
-		fmt.Println(response.StatusCode)
-		fmt.Println(response.Headers)
+		log.Println(response.StatusCode)
+		log.Println(response.Headers)
 	}
 
 	return nil
