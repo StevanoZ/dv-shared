@@ -59,7 +59,6 @@ func TestConvertInterfaceP(t *testing.T) {
 		}, func() {
 			ConvertInterfaceP(data, &[]testData{})
 		})
-
 	})
 
 	t.Run("Failed when unmarshal", func(t *testing.T) {
