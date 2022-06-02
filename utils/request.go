@@ -18,7 +18,6 @@ func ValidateUrlParamUUID(r *http.Request, paramName string) uuid.UUID {
 	param := chi.URLParam(r, paramName)
 
 	uuid, err := uuid.Parse(param)
-
 	if err != nil {
 		PanicIfError(CustomErrorWithTrace(err, fmt.Sprintf("invalid %s param", paramName), 400))
 	}
@@ -30,7 +29,6 @@ func ValidateQueryParamInt(r *http.Request, queryName string) int {
 	query := r.URL.Query().Get(queryName)
 
 	queryInt, err := strconv.Atoi(query)
-
 	if err != nil {
 		PanicIfError(CustomErrorWithTrace(err, fmt.Sprintf("invalid %s query", queryName), 400))
 	}

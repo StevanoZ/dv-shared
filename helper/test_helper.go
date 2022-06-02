@@ -108,7 +108,6 @@ func ParseErrorMessage(data interface{}) string {
 		errMap := err.(map[string]interface{})
 		if i > 0 {
 			errorsResp = fmt.Sprintf("%s, %s", errorsResp, errMap["message"])
-
 		} else {
 			errorsResp = errMap["message"].(string)
 		}
@@ -165,7 +164,6 @@ func CreateFakeGooglePubSub(t *testing.T, project string) (gPubSub *pubsub.Clien
 }
 
 func CheckTokenPayloadCtx(ctx context.Context) gomock.Matcher {
-
 	return gomock.AssignableToTypeOf(context.WithValue(ctx, gomock.Nil(), ""))
 }
 

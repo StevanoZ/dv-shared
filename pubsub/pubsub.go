@@ -57,7 +57,6 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 	sub := p.pubSub.Subscription(id)
 
 	ok, err := sub.Exists(ctx)
-
 	if err != nil {
 		return nil, err
 	}

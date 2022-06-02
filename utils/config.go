@@ -1,6 +1,7 @@
 package shrd_utils
 
 import (
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -51,4 +52,18 @@ func LoadBaseConfig(path string, configName string) (config *BaseConfig) {
 	LogAndPanicIfError(err, "failed when unmarshal config")
 
 	return
+}
+
+func CheckAndSetConfig(path string, configName string) *BaseConfig {
+	config := LoadBaseConfig(path, configName)
+	if config.Environment == TEST {
+		os.Setenv("PUBSUB_EMULATOR_HOST", config.PS_PUBSUB_EMULATOR_HOST)
+		config = LoadBaseConfig(path, "test")
+	}
+
+	if config.Environment == LOCAL {
+		os.Setenv("PUBSUB_EMULATOR_HOST", config.PS_PUBSUB_EMULATOR_HOST)
+	}
+
+	return config
 }

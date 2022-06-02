@@ -20,8 +20,8 @@ type ResponseMap struct {
 
 // FOR TESTING PURPOSE
 type ResponseSlice struct {
-	Success    bool                   `json:"success"`
-	StatusCode int                    `json:"statusCode"`
+	Success    bool                     `json:"success"`
+	StatusCode int                      `json:"statusCode"`
 	Data       []map[string]interface{} `json:"data"`
 }
 
@@ -38,7 +38,8 @@ func GenerateSuccessResp(w http.ResponseWriter, data interface{}, statusCode int
 	responseEncode, err := json.Marshal(response)
 	PanicIfAppError(err, "failed when marshal response", 500)
 
-	w.Write(responseEncode)
+	_, err = w.Write(responseEncode)
+	PanicIfAppError(err, "failed when write success response", 500)
 }
 
 func GenerateErrorResp(w http.ResponseWriter, data interface{}, statusCode int) {
@@ -53,5 +54,7 @@ func GenerateErrorResp(w http.ResponseWriter, data interface{}, statusCode int) 
 
 	responseEncode, err := json.Marshal(response)
 	PanicIfAppError(err, "failed when marshar response", 500)
-	w.Write(responseEncode)
+
+	_, err = w.Write(responseEncode)
+	PanicIfAppError(err, "failed when write success response", 500)
 }

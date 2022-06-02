@@ -48,13 +48,11 @@ func NewS3Client(
 }
 
 func (s *S3ClientImpl) UploadPrivateFile(ctx context.Context, file multipart.File, path string) (string, error) {
-
 	_, err := s.client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket: aws.String(s.config.S3PrivateBucketName),
 		Key:    aws.String(path),
 		Body:   file,
 	})
-
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +60,6 @@ func (s *S3ClientImpl) UploadPrivateFile(ctx context.Context, file multipart.Fil
 	log.Println("success uploaded file to S3: ", path)
 
 	preSignUrl, err := s.GetPreSignUrl(ctx, path)
-
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +74,6 @@ func (s *S3ClientImpl) UploadPublicFile(ctx context.Context, file multipart.File
 		Body:        file,
 		ContentType: aws.String(shrd_utils.GetExt(path)),
 	})
-
 	if err != nil {
 		return "", err
 	}
@@ -104,7 +100,6 @@ func (s *S3ClientImpl) GetPreSignUrl(ctx context.Context, path string) (string, 
 	resp, err := s.preSign.PresignGetObject(ctx, params, func(po *s3.PresignOptions) {
 		po.Expires = s.config.PreSignUrlDuration
 	})
-
 	if err != nil {
 		return "", err
 	}

@@ -2,7 +2,6 @@ package shrd_middleware
 
 import (
 	"net/http"
-
 	"strings"
 
 	shrd_token "github.com/StevanoZ/dv-shared/token"
@@ -33,7 +32,6 @@ func (m *AuthMiddlewareImpl) CheckIsAuthenticated(handler func(w http.ResponseWr
 
 		token := strings.Split(header, " ")[1]
 		payload, err := m.tokenMaker.VerifyToken(token)
-
 		if err != nil {
 			shrd_utils.PanicIfError(shrd_utils.CustomErrorWithTrace(err, "invalid token", 401))
 		}

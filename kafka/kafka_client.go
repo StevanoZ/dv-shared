@@ -78,7 +78,6 @@ func (c *KafkaClientImpl) SendEvents(topics []string, key string, message interf
 	for i := range topics {
 		topic := topics[i]
 		ewg.Go(func() error {
-
 			err := c.producer.Produce(&kafka.Message{
 				TopicPartition: kafka.TopicPartition{
 					Topic:     &topic,
@@ -88,7 +87,6 @@ func (c *KafkaClientImpl) SendEvents(topics []string, key string, message interf
 				Value:     value,
 				Timestamp: time.Now(),
 			}, nil)
-
 			if err != nil {
 				return err
 			}
@@ -124,7 +122,6 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 		msg, err := c.consumer.ReadMessage(-1)
 		if err != nil {
 			cb(nil, err, close)
-
 		} else {
 			log.Printf("message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 			cb(msg, nil, close)

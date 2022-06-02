@@ -99,7 +99,9 @@ func ValidateStruct(data interface{}) {
 }
 
 func ValidateBodyPayload(body io.ReadCloser, output interface{}) {
-	json.NewDecoder(body).Decode(output)
+	err := json.NewDecoder(body).Decode(output)
+	PanicIfAppError(err, "failed when decode body payload", 400)
+
 	ValidateStruct(output)
 }
 
@@ -111,7 +113,7 @@ func DeferCheck(function func() error) {
 
 func LogIfError(err error) {
 	if err != nil {
-		log.Println("error occured: ", err)
+		log.Println("error occurred: ", err)
 	}
 }
 

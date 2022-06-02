@@ -32,11 +32,17 @@ mockPubSub:
 
 test:
 	go test -v -covermode=atomic -race -coverpkg=./... ./... \
-	-coverprofile coverage.out.tmp && cat coverage.out.tmp | grep -v "_mock.go" | grep -v "main.go" | grep -v "helper/" | grep -v "_gen.go" > coverage.out && rm coverage.out.tmp && \
+	-coverprofile coverage.out.tmp && cat coverage.out.tmp | grep -v "_mock.go" | grep -v "helper/" | grep -v "_gen.go" > coverage.out && rm coverage.out.tmp && \
 	go tool cover -func coverage.out
-	
+
+checkLint:
+	golangci-lint run ./... -v
+
+fixLint:
+	golangci-lint run --fix
+
 q2c:
 	sqlc generate
 
-.PHONY: migrateInit createDb migrateUp migrateUp1 migrateDown migrateDown1 q2c mockSvc mockToken mockPubSub test
+.PHONY: migrateInit createDb migrateUp migrateUp1 migrateDown migrateDown1 q2c mockSvc mockToken mockPubSub test checkLint fixLint
 

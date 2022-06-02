@@ -32,14 +32,12 @@ func (m *PasetoMaker) CreateToken(params PayloadParams, duration time.Duration) 
 	token, err := m.paseto.Encrypt(m.symmetricKey, payload, nil)
 
 	return token, payload, err
-
 }
 
 func (m *PasetoMaker) VerifyToken(token string) (*Payload, error) {
 	payload := &Payload{}
 
 	err := m.paseto.Decrypt(token, m.symmetricKey, payload, nil)
-
 	if err != nil {
 		return nil, ErrInvalidToken
 	}

@@ -1,1 +1,1 @@
-DELETE TABLE IF EXISTS "test";
+CREATE TABLE IF NOT EXISTS "test" ( "id" uuid PRIMARY KEY );

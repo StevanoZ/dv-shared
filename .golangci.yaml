@@ -1,0 +1,24 @@
+linters:
+  enable:
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - varcheck
+    - gocyclo
+    - goconst
+    - gofumpt
+    - goimports
+    - misspell
+   
+run:
+  skip-files:
+    - injector.go
+    - helper/test_helper.go
+  build-tags:
+    - wireinject
+  tests: false

@@ -89,7 +89,6 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
 		}
 
 		cacheData, err := json.Marshal(data)
-
 		if err != nil {
 			return err
 		}
@@ -105,9 +104,7 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
 }
 
 func (s *CacheSvcImpl) Get(ctx context.Context, key string, output any) error {
-
 	val, err := s.cacheDb.Get(ctx, key).Result()
-
 	if err != nil {
 		log.Println(fmt.Sprintf("failed when getting key -> %s ", key), err)
 		return err
@@ -161,7 +158,6 @@ func (s *CacheSvcImpl) GetOrSet(ctx context.Context, key string, function func()
 
 func (s *CacheSvcImpl) Del(ctx context.Context, key string) error {
 	err := s.cacheDb.Del(ctx, key).Err()
-
 	if err != nil {
 		return err
 	}
