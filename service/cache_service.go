@@ -21,11 +21,11 @@ type RedisClient interface {
 }
 
 type CacheSvc interface {
-	Set(ctx context.Context, key string, data any) error
+	Set(ctx context.Context, key string, data any, duration ...time.Duration) error
 	Get(ctx context.Context, key string, output any) error
 	Del(ctx context.Context, key string) error
 	DelByPrefix(ctx context.Context, prefixName string)
-	GetOrSet(ctx context.Context, key string, function func() any) (any, error)
+	GetOrSet(ctx context.Context, key string, function func() any, duration ...time.Duration) (any, error)
 	CloseClient() error
 }
 
@@ -61,7 +61,7 @@ func NewRedisClientForTesting(config *shrd_utils.BaseConfig) *redis.Client {
 	return rdb
 }
 
-func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
+func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any, duration ...time.Duration) error {
 	dataErr, isDataErr := data.(error)
 	if isDataErr {
 		log.Println("not save data to cache (data error)")
@@ -95,7 +95,12 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any) error {
 
 		log.Println("set data to cache with key -->", key)
 
-		return s.cacheDb.Set(ctx, key, cacheData, s.config.CACHE_DURATION).Err()
+		expiration := s.config.CACHE_DURATION
+		if len(duration) > 0 {
+			expiration = duration[0]
+		}
+
+		return s.cacheDb.Set(ctx, key, cacheData, expiration).Err()
 	}
 
 	log.Println("not save data to cache, key -->", key)
@@ -138,13 +143,13 @@ func (s *CacheSvcImpl) DelByPrefix(ctx context.Context, prefixName string) {
 	log.Printf("deleted Count %d\n", foundedRecordCount)
 }
 
-func (s *CacheSvcImpl) GetOrSet(ctx context.Context, key string, function func() any) (any, error) {
+func (s *CacheSvcImpl) GetOrSet(ctx context.Context, key string, function func() any, duration ...time.Duration) (any, error) {
 	var data any
 	err := s.Get(ctx, key, &data)
 
 	if err != nil && err == redis.Nil {
 		data = function()
-		err := s.Set(ctx, key, data)
+		err := s.Set(ctx, key, data, duration...)
 
 		return data, err
 	}

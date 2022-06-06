@@ -114,10 +114,12 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 	}
 
 	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-		log.Println("received message with ID: ", msg.ID)
+		log.Printf("received message with messageID: %s, topicID: %s, ordering key: %s \n", msg.ID, topic.ID(), msg.OrderingKey)
+		if msg.DeliveryAttempt != nil {
+			log.Printf("message delivery/retry attempt: %d \n", *msg.DeliveryAttempt)
+		}
 
 		callback(ctx, msg)
-		msg.Ack()
 	})
 }
 

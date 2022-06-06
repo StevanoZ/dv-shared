@@ -198,11 +198,14 @@ func TestPullMessages(t *testing.T) {
 		topic, _ := createTopicAndDLQ(t, client)
 
 		go func() {
+			deliveryAttempt := 3
 			msgData, err := json.Marshal(MESSAGE)
 			assert.NoError(t, err)
 
 			topic.Publish(CONTEXT, &pubsub.Message{
-				Data: msgData,
+				Data:            msgData,
+				OrderingKey:     ORDER_KEY,
+				DeliveryAttempt: &deliveryAttempt,
 			})
 		}()
 

@@ -85,7 +85,7 @@ func TestCacheSvc(t *testing.T) {
 	})
 
 	t.Run("Set, get and delete data (slice)", func(t *testing.T) {
-		err := cacheSvc.Set(ctx, SLICE_KEY, dataSlice)
+		err := cacheSvc.Set(ctx, SLICE_KEY, dataSlice, 5*time.Minute)
 		assert.NoError(t, err)
 
 		output := []testData{}
@@ -183,7 +183,7 @@ func TestCacheSvc(t *testing.T) {
 
 		data, err := cacheSvc.GetOrSet(ctx, SLICE_KEY, func() any {
 			return dataSlice
-		})
+		}, 5*time.Minute)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(data.([]testData)))

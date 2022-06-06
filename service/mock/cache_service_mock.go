@@ -189,30 +189,40 @@ func (mr *MockCacheSvcMockRecorder) Get(ctx, key, output interface{}) *gomock.Ca
 }
 
 // GetOrSet mocks base method.
-func (m *MockCacheSvc) GetOrSet(ctx context.Context, key string, function func() any) (any, error) {
+func (m *MockCacheSvc) GetOrSet(ctx context.Context, key string, function func() any, duration ...time.Duration) (any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOrSet", ctx, key, function)
+	varargs := []interface{}{ctx, key, function}
+	for _, a := range duration {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetOrSet", varargs...)
 	ret0, _ := ret[0].(any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetOrSet indicates an expected call of GetOrSet.
-func (mr *MockCacheSvcMockRecorder) GetOrSet(ctx, key, function interface{}) *gomock.Call {
+func (mr *MockCacheSvcMockRecorder) GetOrSet(ctx, key, function interface{}, duration ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrSet", reflect.TypeOf((*MockCacheSvc)(nil).GetOrSet), ctx, key, function)
+	varargs := append([]interface{}{ctx, key, function}, duration...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrSet", reflect.TypeOf((*MockCacheSvc)(nil).GetOrSet), varargs...)
 }
 
 // Set mocks base method.
-func (m *MockCacheSvc) Set(ctx context.Context, key string, data any) error {
+func (m *MockCacheSvc) Set(ctx context.Context, key string, data any, duration ...time.Duration) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Set", ctx, key, data)
+	varargs := []interface{}{ctx, key, data}
+	for _, a := range duration {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Set", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Set indicates an expected call of Set.
-func (mr *MockCacheSvcMockRecorder) Set(ctx, key, data interface{}) *gomock.Call {
+func (mr *MockCacheSvcMockRecorder) Set(ctx, key, data interface{}, duration ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockCacheSvc)(nil).Set), ctx, key, data)
+	varargs := append([]interface{}{ctx, key, data}, duration...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockCacheSvc)(nil).Set), varargs...)
 }
