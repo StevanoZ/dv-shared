@@ -36,6 +36,7 @@ type BaseConfig struct {
 	CACHE_DURATION          time.Duration `mapstructure:"CACHE_DURATION"`
 	MIGRATION_URL           string        `mapstructure:"MIGRATION_URL"`
 	PS_PUBSUB_EMULATOR_HOST string        `mapstructure:"PS_PUBSUB_EMULATOR_HOST"`
+	RETRY_TIME              time.Duration `mapstructure:"RETRY_TIME"`
 }
 
 func LoadBaseConfig(path string, configName string) (config *BaseConfig) {

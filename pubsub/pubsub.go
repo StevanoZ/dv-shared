@@ -68,7 +68,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 	return p.pubSub.CreateSubscription(ctx, id, pubsub.SubscriptionConfig{
 		Topic:                 topic,
 		EnableMessageOrdering: true,
-		AckDeadline:           20 * time.Second,
+		AckDeadline:           30 * time.Second,
 		DeadLetterPolicy: &pubsub.DeadLetterPolicy{
 			DeadLetterTopic:     p.config.DLQ_TOPIC,
 			MaxDeliveryAttempts: 5,
@@ -115,9 +115,6 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 
 	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		log.Printf("received message with messageID: %s, topicID: %s, ordering key: %s \n", msg.ID, topic.ID(), msg.OrderingKey)
-		if msg.DeliveryAttempt != nil {
-			log.Printf("message delivery/retry attempt: %d \n", *msg.DeliveryAttempt)
-		}
 
 		callback(ctx, msg)
 	})
