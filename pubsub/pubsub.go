@@ -3,6 +3,7 @@ package pubsub_client
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -70,7 +71,7 @@ func (p *PubSubClientImpl) CreateSubscriptionIfNotExists(ctx context.Context, id
 		EnableMessageOrdering: true,
 		AckDeadline:           20 * time.Second,
 		DeadLetterPolicy: &pubsub.DeadLetterPolicy{
-			DeadLetterTopic:     p.config.DLQ_TOPIC,
+			DeadLetterTopic:     fmt.Sprintf("%s-%s", p.config.DLQ_TOPIC, topic.ID()),
 			MaxDeliveryAttempts: 5,
 		},
 	})
