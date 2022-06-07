@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	sql_db "github.com/StevanoZ/dv-shared/db"
 )
 
-func ExecTx(ctx context.Context, DB *sql.DB, fn func(tx *sql.Tx) error) error {
+func ExecTx(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) error) error {
 	tx, err := DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
