@@ -220,7 +220,7 @@ func TestPullMessages(t *testing.T) {
 			assert.NoError(t, err)
 		}()
 
-		time.Sleep(600 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 	})
 
 	t.Run("Failed when pull message", func(t *testing.T) {
@@ -246,4 +246,26 @@ func TestClose(t *testing.T) {
 	client := initPubSubClient(t, gPubSub)
 	err := client.Close()
 	assert.NoError(t, err)
+}
+
+func TestCheckTopicAndPublish(t *testing.T) {
+	ctx := context.Background()
+	gPubSub, _ := shrd_helper.CreateFakeGooglePubSub(t, PROJECT)
+	client := initPubSubClient(t, gPubSub)
+	defer gPubSub.Close()
+
+	topic, _ := createTopicAndDLQ(t, client)
+	t.Run("Publish message", func(t *testing.T) {
+		client.CheckTopicAndPublish(ctx, []string{topic.ID()}, ORDER_KEY, MESSAGE)
+	})
+
+	t.Run("Should not publish message", func(t *testing.T) {
+		client.CheckTopicAndPublish(ctx, []string{}, ORDER_KEY, MESSAGE)
+	})
+
+	t.Run("Failed when publish message", func(t *testing.T) {
+		ctxCancel, cancel := context.WithCancel(ctx)
+		cancel()
+		client.CheckTopicAndPublish(ctxCancel, []string{TOPIC}, ORDER_KEY, "publish-message")
+	})
 }

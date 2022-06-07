@@ -123,3 +123,25 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 func (p *PubSubClientImpl) Close() error {
 	return p.pubSub.Close()
 }
+
+func (p *PubSubClientImpl) CheckTopicAndPublish(
+	ctx context.Context,
+	topicsName []string,
+	orderingKey string,
+	data any,
+) {
+	if len(topicsName) == 0 {
+		return
+	}
+	topics := make([]*pubsub.Topic, len(topicsName))
+	for i := range topicsName {
+		topic, err := p.CreateTopicIfNotExists(ctx, topicsName[i])
+		if err != nil {
+			log.Printf("error when creating topic: [%s] \n", topicsName[i])
+			return
+		}
+		topics[i] = topic
+	}
+	err := p.PublishTopics(ctx, topics, data, orderingKey)
+	shrd_utils.LogIfError(err)
+}

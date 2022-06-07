@@ -12,4 +12,5 @@ type PubSubClient interface {
 	PublishTopics(ctx context.Context, topics []*pubsub.Topic, data any, orderingKey string) error
 	PullMessages(ctx context.Context, id string, topic *pubsub.Topic, callback func(ctx context.Context, msg *pubsub.Message)) error
 	Close() error
+	CheckTopicAndPublish(ctx context.Context, topicsName []string, orderingKey string, data any)
 }

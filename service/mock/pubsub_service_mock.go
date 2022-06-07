@@ -35,6 +35,18 @@ func (m *MockPubSubClient) EXPECT() *MockPubSubClientMockRecorder {
 	return m.recorder
 }
 
+// CheckTopicAndPublish mocks base method.
+func (m *MockPubSubClient) CheckTopicAndPublish(ctx context.Context, topicsName []string, orderingKey string, data any) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CheckTopicAndPublish", ctx, topicsName, orderingKey, data)
+}
+
+// CheckTopicAndPublish indicates an expected call of CheckTopicAndPublish.
+func (mr *MockPubSubClientMockRecorder) CheckTopicAndPublish(ctx, topicsName, orderingKey, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckTopicAndPublish", reflect.TypeOf((*MockPubSubClient)(nil).CheckTopicAndPublish), ctx, topicsName, orderingKey, data)
+}
+
 // Close mocks base method.
 func (m *MockPubSubClient) Close() error {
 	m.ctrl.T.Helper()
