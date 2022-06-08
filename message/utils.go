@@ -23,6 +23,6 @@ func SetRetryOrSetDataToDB(config *shrd_utils.BaseConfig, msg *pubsub.Message, c
 	}
 }
 
-func BuildDescErrorMsg(desc string, msg *pubsub.Message) string {
-	return fmt.Sprintf("%s, messageID: %s", desc, msg.ID)
+func BuildDescErrorMsg(desc string, err error) string {
+	return fmt.Sprintf("%s, Error: %s", desc, err.Error())
 }
