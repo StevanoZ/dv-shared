@@ -1,6 +1,7 @@
 package message
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -33,10 +34,6 @@ func TestSetRetryOrSetDataToDB(t *testing.T) {
 }
 
 func TestBuildDescErrorMsg(t *testing.T) {
-	msg := pubsub.Message{
-		ID: "123",
-	}
-
-	descMsg := BuildDescErrorMsg("error description", &msg)
-	assert.Equal(t, "error description, messageID: 123", descMsg)
+	descMsg := BuildDescErrorMsg("error description", errors.New("failed"))
+	assert.Equal(t, "error description, Error: failed", descMsg)
 }
