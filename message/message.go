@@ -67,8 +67,9 @@ type CreatedUserImagePayload struct {
 }
 
 type UpdatedUserImagePayload struct {
-	IsMain    bool      `json:"is_main"`
 	ID        uuid.UUID `json:"id"`
+	IsMain    bool      `json:"is_main"`
+	UserID    uuid.UUID `json:"user_id"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
