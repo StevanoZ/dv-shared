@@ -220,7 +220,7 @@ func TestPullMessages(t *testing.T) {
 			assert.NoError(t, err)
 		}()
 
-		time.Sleep(800 * time.Millisecond)
+		time.Sleep(600 * time.Millisecond)
 	})
 
 	t.Run("Failed when pull message", func(t *testing.T) {
@@ -237,7 +237,7 @@ func TestPullMessages(t *testing.T) {
 			assert.Error(t, err)
 		}()
 
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(300 * time.Millisecond)
 	})
 }
 
