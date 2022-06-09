@@ -113,6 +113,8 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 		return err
 	}
 
+	sub.ReceiveSettings.Synchronous = true
+	sub.ReceiveSettings.MaxOutstandingMessages = 30
 	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		log.Printf("received message with messageID: %s, topicID: %s, ordering key: %s \n", msg.ID, topic.ID(), msg.OrderingKey)
 
