@@ -15,7 +15,7 @@ import (
 	"cloud.google.com/go/pubsub/pstest"
 	shrd_token "github.com/StevanoZ/dv-shared/token"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
-	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

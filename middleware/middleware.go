@@ -4,8 +4,8 @@ import (
 	"time"
 
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
 func SetupMiddleware(route *chi.Mux, config *shrd_utils.BaseConfig) {
