@@ -4,12 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
+	sqltrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql"
 )
 
 func ConnectDB(dbDriver, dbSource string) *sql.DB {
 	dsn := fmt.Sprintf("%s://%s", dbDriver, dbSource)
 
+	sqltrace.Register("pq", pq.Driver{})
 	dbc, err := sql.Open(dbDriver, dsn)
 	LogAndPanicIfError(err, "failed when connecting to database")
 

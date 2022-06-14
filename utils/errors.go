@@ -12,8 +12,8 @@ import (
 )
 
 type AppError struct {
-	Message    string
-	StatusCode int
+	Message         string
+	StatusCode      int
 }
 
 func (ae *AppError) Error() string {
@@ -56,8 +56,9 @@ func PanicIfError(err error) {
 		}
 
 		appErr := AppError{
-			Message:    message,
-			StatusCode: statusCode,
+			Message:         message,
+			StatusCode:      statusCode,
+			
 		}
 		panic(appErr)
 	}
