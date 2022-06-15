@@ -14,6 +14,7 @@ import (
 const rowCloseErrorMsg = "pq: unexpected Parse response 'C'"
 const deadLockErrorMsg = "pq: unexpected Parse response 'D'"
 const badConnectionErrMsg = "driver: bad connection"
+const txAbortingErrMsg = "pq: Could not complete operation in a failed transaction"
 
 func ExecTx(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) error) error {
 	tx, err := DB.BeginTx(ctx, nil)
@@ -56,7 +57,8 @@ func ExecTxWithRetry(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql
 			break
 		} else if strings.Contains(err.Error(), badConnectionErrMsg) ||
 			strings.Contains(err.Error(), deadLockErrorMsg) ||
-			strings.Contains(err.Error(), rowCloseErrorMsg) {
+			strings.Contains(err.Error(), rowCloseErrorMsg) ||
+			strings.Contains(err.Error(), txAbortingErrMsg) {
 			time.Sleep(1 * time.Second)
 			log.Printf("retry transaction %d times \n", i+1)
 			err = retryFunc()
