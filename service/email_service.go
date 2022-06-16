@@ -2,7 +2,7 @@ package shrd_service
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"strconv"
 
 	"github.com/StevanoZ/dv-shared/message"
@@ -10,6 +10,7 @@ import (
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	"go.uber.org/zap"
 )
 
 type EmailClient interface {
@@ -51,11 +52,11 @@ func (s *EmailSvcImpl) SendVerifyOtp(ctx context.Context, data message.OtpPayloa
 
 	response, err := s.client.SendWithContext(ctx, message)
 	if err != nil {
-		log.Println("Error Send Email", err)
+		shrd_utils.LogError("error send email", zap.Error(err))
 		return err
 	} else {
-		log.Println(response.StatusCode)
-		log.Println(response.Headers)
+		shrd_utils.LogInfo(fmt.Sprintf("status code: %d", response.StatusCode))
+		shrd_utils.LogInfo(fmt.Sprintf("headers: %v", response.Headers))
 	}
 
 	return nil

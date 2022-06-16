@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/go-redis/redis/v8"
+	"go.uber.org/zap"
 )
 
 type RedisClient interface {
@@ -64,26 +64,26 @@ func NewRedisClientForTesting(config *shrd_utils.BaseConfig) *redis.Client {
 func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any, duration ...time.Duration) error {
 	dataErr, isDataErr := data.(error)
 	if isDataErr {
-		log.Println("not save data to cache (data error)")
+		shrd_utils.LogInfo("not save data to cache (data error)")
 		return dataErr
 	}
 
 	appErr, isAppErr := data.(shrd_utils.AppError)
 	if isAppErr {
-		log.Println("not save data to cache (app error)")
+		shrd_utils.LogInfo("not save data to cache (app error)")
 		return &appErr
 	}
 
 	validationErrs, isValidationErrs := data.(shrd_utils.ValidationErrors)
 	if isValidationErrs {
-		log.Println("not save data to cache (validation errors)")
+		shrd_utils.LogInfo("not save data to cache (validation errors)")
 		return &validationErrs
 	}
 
 	if data != nil {
 		if reflect.TypeOf(data).Kind() == reflect.Slice {
 			if reflect.ValueOf(data).Len() == 0 {
-				log.Println("no data to save, array is empty")
+				shrd_utils.LogInfo("no data to save, array is empty")
 				return nil
 			}
 		}
@@ -93,7 +93,7 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any, duration .
 			return err
 		}
 
-		log.Println("set data to cache with key -->", key)
+		shrd_utils.LogInfo(fmt.Sprintf("set data to cache with key --> %s", key))
 
 		expiration := s.config.CACHE_DURATION
 		if len(duration) > 0 {
@@ -103,7 +103,7 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any, duration .
 		return s.cacheDb.Set(ctx, key, cacheData, expiration).Err()
 	}
 
-	log.Println("not save data to cache, key -->", key)
+	shrd_utils.LogInfo(fmt.Sprintf("not save data to cache, key --> %s", key))
 
 	return nil
 }
@@ -111,18 +111,18 @@ func (s *CacheSvcImpl) Set(ctx context.Context, key string, data any, duration .
 func (s *CacheSvcImpl) Get(ctx context.Context, key string, output any) error {
 	val, err := s.cacheDb.Get(ctx, key).Result()
 	if err != nil {
-		log.Println(fmt.Sprintf("failed when getting key -> %s ", key), err)
+		shrd_utils.LogInfo(fmt.Sprintf("failed when getting key -> %s | error: %v", key, err))
 		return err
 	}
 
 	err = json.Unmarshal([]byte(val), &output)
 
 	if err != nil {
-		log.Println("failed when unmarshal data")
+		shrd_utils.LogInfo("failed when unmarshal data")
 		return err
 	}
 
-	log.Println("get data from cache with key -->", key)
+	shrd_utils.LogInfo(fmt.Sprintf("get data from cache with key --> %s", key))
 
 	return nil
 }
@@ -130,17 +130,19 @@ func (s *CacheSvcImpl) Get(ctx context.Context, key string, output any) error {
 func (s *CacheSvcImpl) DelByPrefix(ctx context.Context, prefixName string) {
 	var foundedRecordCount int = 0
 	iter := s.cacheDb.Scan(ctx, 0, fmt.Sprintf("%s*", prefixName), 0).Iterator()
-	log.Printf("your search pattern: %s\n", prefixName)
+	shrd_utils.LogInfo(fmt.Sprintf("your search pattern: %s", prefixName))
 
 	for iter.Next(ctx) {
-		log.Printf("deleted= %s\n", iter.Val())
+		shrd_utils.LogInfo(fmt.Sprintf("deleted= %s", iter.Val()))
 		s.cacheDb.Del(ctx, iter.Val())
 		foundedRecordCount++
 	}
+
 	if err := iter.Err(); err != nil {
-		panic(err)
+		shrd_utils.LogError("failed when deleting cache", zap.Error(err))
 	}
-	log.Printf("deleted Count %d\n", foundedRecordCount)
+
+	shrd_utils.LogInfo(fmt.Sprintf("deleted Count %d", foundedRecordCount))
 }
 
 func (s *CacheSvcImpl) GetOrSet(ctx context.Context, key string, function func() any, duration ...time.Duration) (any, error) {
@@ -164,6 +166,7 @@ func (s *CacheSvcImpl) GetOrSet(ctx context.Context, key string, function func()
 func (s *CacheSvcImpl) Del(ctx context.Context, key string) error {
 	err := s.cacheDb.Del(ctx, key).Err()
 	if err != nil {
+		shrd_utils.LogError(fmt.Sprintf("failed when deleting cache key: %s", key), zap.Error(err))
 		return err
 	}
 

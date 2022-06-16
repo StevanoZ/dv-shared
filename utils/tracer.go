@@ -18,16 +18,16 @@ func SetupTracer(ctx context.Context, identifier string) func() {
 			appErr, isAppErr := err.(AppError)
 			unknownErr, isUnknownErr := err.(error)
 			if isAppErr {
-				trac.Finish(tracer.WithError(errors.New(appErr.Message)))
+				go trac.Finish(tracer.WithError(errors.New(appErr.Message)))
 			}
 
 			if isUnknownErr {
-				trac.Finish(tracer.WithError(unknownErr))
+				go trac.Finish(tracer.WithError(unknownErr))
 			}
 
 			panic(err)
 		} else {
-			trac.Finish(tracer.NoDebugStack())
+			go trac.Finish(tracer.NoDebugStack())
 		}
 	}
 }

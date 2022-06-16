@@ -2,7 +2,6 @@ package shrd_utils
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -23,5 +22,5 @@ func RunMigration(db *sql.DB, config *BaseConfig) {
 		LogAndPanicIfError(err, "failed to run migrate up")
 	}
 
-	log.Println("db migrated successfully")
+	LogInfo("db migrated successfully")
 }

@@ -2,7 +2,6 @@ package message
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -12,13 +11,13 @@ import (
 func SetRetryOrSetDataToDB(config *shrd_utils.BaseConfig, msg *pubsub.Message, cb func()) {
 	if msg.DeliveryAttempt != nil && *msg.DeliveryAttempt <= 4 {
 		time.Sleep(config.RETRY_TIME)
-		log.Printf("retry message with messageID: %s, orderingKey: %s \n", msg.ID, msg.OrderingKey)
+		shrd_utils.LogInfo(fmt.Sprintf("retry message with messageID: %s, orderingKey: %s", msg.ID, msg.OrderingKey))
 		msg.Nack()
 	}
 
 	if msg.DeliveryAttempt != nil && *msg.DeliveryAttempt > 4 {
 		cb()
-		log.Printf("acknowledged message")
+		shrd_utils.LogInfo("acknowledged message")
 		msg.Ack()
 	}
 }

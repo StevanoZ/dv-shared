@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -59,8 +58,8 @@ func ExecTxWithRetry(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql
 			strings.Contains(err.Error(), deadLockErrorMsg) ||
 			strings.Contains(err.Error(), rowCloseErrorMsg) ||
 			strings.Contains(err.Error(), txAbortingErrMsg) {
-			time.Sleep(1 * time.Second)
-			log.Printf("retry transaction %d times \n", i+1)
+			time.Sleep(500 * time.Millisecond)
+			LogInfo(fmt.Sprintf("retry transaction %d times \n", i+1))
 			err = retryFunc()
 		} else {
 			// DON'T NEED TO RETRY THIS ERROR

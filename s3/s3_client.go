@@ -3,7 +3,6 @@ package s3_client
 import (
 	"context"
 	"fmt"
-	"log"
 	"mime/multipart"
 
 	shrd_service "github.com/StevanoZ/dv-shared/service"
@@ -57,7 +56,7 @@ func (s *S3ClientImpl) UploadPrivateFile(ctx context.Context, file multipart.Fil
 		return "", err
 	}
 
-	log.Println("success uploaded file to S3: ", path)
+	shrd_utils.LogInfo(fmt.Sprintf("success uploaded file to S3: %s", path))
 
 	preSignUrl, err := s.GetPreSignUrl(ctx, path)
 	if err != nil {

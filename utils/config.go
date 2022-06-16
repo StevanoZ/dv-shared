@@ -38,6 +38,7 @@ type BaseConfig struct {
 	PS_PUBSUB_EMULATOR_HOST string        `mapstructure:"PS_PUBSUB_EMULATOR_HOST"`
 	RETRY_TIME              time.Duration `mapstructure:"RETRY_TIME"`
 	DATA_DOG_AGENT_HOST     string        `mapstructure:"DATA_DOG_AGENT_HOST"`
+	DEFAULT_TIME_ZONE       string        `mapstructure:"DEFAULT_TIME_ZONE"`
 }
 
 func LoadBaseConfig(path string, configName string) (config *BaseConfig) {

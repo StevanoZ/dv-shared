@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 )
 
 type AppError struct {
-	Message         string
-	StatusCode      int
+	Message    string
+	StatusCode int
 }
 
 func (ae *AppError) Error() string {
@@ -56,9 +56,8 @@ func PanicIfError(err error) {
 		}
 
 		appErr := AppError{
-			Message:         message,
-			StatusCode:      statusCode,
-			
+			Message:    message,
+			StatusCode: statusCode,
 		}
 		panic(appErr)
 	}
@@ -108,20 +107,20 @@ func ValidateBodyPayload(body io.ReadCloser, output interface{}) {
 
 func DeferCheck(function func() error) {
 	if err := function(); err != nil {
-		log.Println("defer error:", err)
+		LogError("defer error", zap.Error(err))
 	}
 }
 
 func LogIfError(err error) {
 	if err != nil {
-		log.Println("error occurred: ", err)
+		LogError("error occurred", zap.Error(err))
 	}
 }
 
 func LogAndPanicIfError(err error, message string) {
 	if err != nil {
 		errMsg := fmt.Sprintf("%s :%v", message, err)
-		log.Println(errMsg)
+		LogError(errMsg, zap.Error(err))
 		panic(err)
 	}
 }

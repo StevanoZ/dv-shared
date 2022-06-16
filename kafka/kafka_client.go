@@ -2,12 +2,13 @@ package kafka_client
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"time"
 
 	shrd_service "github.com/StevanoZ/dv-shared/service"
 	shrd_utils "github.com/StevanoZ/dv-shared/utils"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -91,7 +92,7 @@ func (c *KafkaClientImpl) SendEvents(topics []string, key string, message interf
 				return err
 			}
 
-			log.Println("send message to topic: ", topic)
+			shrd_utils.LogInfo("send message to topic: ", zap.Any("topic", topic))
 			c.producer.Flush(15000)
 			return nil
 		})
@@ -108,11 +109,11 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 	defer c.consumer.Close()
 
 	if err != nil {
-		log.Println("error when subscribe topic", err)
+		shrd_utils.LogError("error when subscribe topic", zap.Error(err))
 		return err
 	}
 
-	log.Println("started consuming topic: ", topic)
+	shrd_utils.LogInfo("started consuming topic: ", zap.Any("topic", topic))
 
 	isEndlessly := true
 	close := func() {
@@ -123,7 +124,9 @@ func (c *KafkaClientImpl) ListenEvent(topic string, cb func(payload any, errMsg 
 		if err != nil {
 			cb(nil, err, close)
 		} else {
-			log.Printf("message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			desc := fmt.Sprintf("partition: %s, value: %s", msg.TopicPartition, string(msg.Value))
+			shrd_utils.LogInfo("message on: ", zap.String("description", desc))
+			
 			cb(msg, nil, close)
 		}
 	}

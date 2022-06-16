@@ -3,7 +3,7 @@ package pubsub_client
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -98,8 +98,7 @@ func (p *PubSubClientImpl) PublishTopics(ctx context.Context, topics []*pubsub.T
 		if err != nil {
 			return err
 		}
-
-		log.Println("publish message with ID: ", id)
+		shrd_utils.LogInfo(fmt.Sprintf("publish message with ID: %s", id))
 	}
 
 	return nil
@@ -116,7 +115,7 @@ func (p *PubSubClientImpl) PullMessages(ctx context.Context, id string, topic *p
 	// sub.ReceiveSettings.Synchronous = true
 	// sub.ReceiveSettings.MaxOutstandingMessages = 30
 	return sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-		log.Printf("received message with messageID: %s, topicID: %s, ordering key: %s \n", msg.ID, topic.ID(), msg.OrderingKey)
+		shrd_utils.LogInfo(fmt.Sprintf("received message with messageID: %s, topicID: %s, ordering key: %s \n", msg.ID, topic.ID(), msg.OrderingKey))
 
 		callback(ctx, msg)
 	})
@@ -139,7 +138,7 @@ func (p *PubSubClientImpl) CheckTopicAndPublish(
 	for i := range topicsName {
 		topic, err := p.CreateTopicIfNotExists(ctx, topicsName[i])
 		if err != nil {
-			log.Printf("error when creating topic: [%s] \n", topicsName[i])
+			shrd_utils.LogError(fmt.Sprintf("error when creating topic: [%s] \n", topicsName[i]))
 			return
 		}
 		topics[i] = topic
