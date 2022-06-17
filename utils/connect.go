@@ -11,7 +11,7 @@ import (
 func ConnectDB(dbDriver, dbSource string) *sql.DB {
 	dsn := fmt.Sprintf("%s://%s", dbDriver, dbSource)
 
-	sqltrace.Register("pq", pq.Driver{})
+	sqltrace.Register("postgres", &pq.Driver{})
 	dbc, err := sql.Open(dbDriver, dsn)
 	LogAndPanicIfError(err, "failed when connecting to database")
 
