@@ -36,7 +36,7 @@ func CheckTracerSvc(trac ddtrace.Span) {
 
 }
 
-func CheckTracerDB(trac ddtrace.Span, err error) {
+func CheckTracer(trac ddtrace.Span, err error) {
 	if err != nil {
 		go trac.Finish(tracer.WithError(err))
 		panic(err)
