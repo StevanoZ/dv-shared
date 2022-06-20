@@ -5,12 +5,15 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	sql_db "github.com/StevanoZ/dv-shared/db"
 )
 
+// pq: current transaction is aborted, commands ignored until end of transaction block
 // pq: could not serialize access due to concurrent update
 // The transaction might succeed if retried.
+
 const rowCloseErrorMsg = "pq: unexpected Parse response 'C'"
 const deadLockErrorMsg = "pq: unexpected Parse response 'D'"
 const badConnectionErrMsg = "driver: bad connection"
@@ -70,7 +73,7 @@ func ExecTxWithRetry(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql
 			strings.Contains(err.Error(), rowCloseErrorMsg) ||
 			strings.Contains(err.Error(), txAbortingErrMsg) {
 			// immediately RETRY??
-			//	time.Sleep(500 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 			LogInfo(fmt.Sprintf("retry transaction %d times \n", i+1))
 			err = retryFunc()
 		} else {
