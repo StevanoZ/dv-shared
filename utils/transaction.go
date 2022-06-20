@@ -5,18 +5,24 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
 	sql_db "github.com/StevanoZ/dv-shared/db"
 )
 
+// pq: could not serialize access due to concurrent update
+// The transaction might succeed if retried.
 const rowCloseErrorMsg = "pq: unexpected Parse response 'C'"
 const deadLockErrorMsg = "pq: unexpected Parse response 'D'"
 const badConnectionErrMsg = "driver: bad connection"
 const txAbortingErrMsg = "pq: Could not complete operation in a failed transaction"
 
-func ExecTx(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) error) error {
-	tx, err := DB.BeginTx(ctx, nil)
+func ExecTx(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) error, level ...int) error {
+	isolationLevel := 0
+	if len(level) > 0 {
+		isolationLevel = level[0]
+	}
+
+	tx, err := DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.IsolationLevel(isolationLevel)})
 	if err != nil {
 		return err
 	}
@@ -32,9 +38,14 @@ func ExecTx(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) erro
 	return tx.Commit()
 }
 
-func ExecTxWithRetry(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) error) error {
+func ExecTxWithRetry(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql.Tx) error, level ...int) error {
 	var retryFunc = func() error {
-		tx, err := DB.BeginTx(ctx, nil)
+		isolationLevel := 0
+		if len(level) > 0 {
+			isolationLevel = level[0]
+		}
+
+		tx, err := DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.IsolationLevel(isolationLevel)})
 		if err != nil {
 			return err
 		}
@@ -58,7 +69,8 @@ func ExecTxWithRetry(ctx context.Context, DB sql_db.DBInterface, fn func(tx *sql
 			strings.Contains(err.Error(), deadLockErrorMsg) ||
 			strings.Contains(err.Error(), rowCloseErrorMsg) ||
 			strings.Contains(err.Error(), txAbortingErrMsg) {
-			time.Sleep(500 * time.Millisecond)
+			// immediately RETRY??
+			//	time.Sleep(500 * time.Millisecond)
 			LogInfo(fmt.Sprintf("retry transaction %d times \n", i+1))
 			err = retryFunc()
 		} else {

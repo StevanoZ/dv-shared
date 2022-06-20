@@ -22,7 +22,7 @@ func TestExecTx(t *testing.T) {
 	t.Run("Success commit Tx", func(t *testing.T) {
 		err := ExecTx(context.Background(), db, func(tx *sql.Tx) error {
 			return nil
-		})
+		}, 6)
 
 		assert.NoError(t, err)
 	})
@@ -59,7 +59,7 @@ func TestExecTxWithRetry(t *testing.T) {
 	t.Run("Success commit Tx", func(t *testing.T) {
 		err := ExecTxWithRetry(context.Background(), db, func(tx *sql.Tx) error {
 			return nil
-		})
+		}, 6)
 
 		assert.NoError(t, err)
 	})
